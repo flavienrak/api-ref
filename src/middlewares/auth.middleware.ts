@@ -1,14 +1,15 @@
-import express from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/db';
+
+import { Request, Response, NextFunction } from 'express';
 
 const authTokenName = process.env.AUTH_TOKEN_NAME;
 const secretKey = process.env.JWT_SECRET_KEY;
 
 const isAuthenticated = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
   try {
     if (authTokenName && secretKey) {

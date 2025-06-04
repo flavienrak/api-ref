@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import path from 'path';
 
 import { app, logger, server } from '@/socket';
@@ -9,7 +9,7 @@ import userRoutes from '@/routes/user.routes';
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-app.get('/', (req: express.Request, res: express.Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Backend running successfully!');
 });
 

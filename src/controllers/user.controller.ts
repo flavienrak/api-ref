@@ -2,19 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import express from 'express';
 import isEmpty from '@/utils/isEmpty';
 import prisma from '@/lib/db';
 
+import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { imageMimeTypes } from '@/utils/constants';
 
 const uniqueId = crypto.randomBytes(4).toString('hex');
 
-const getUser = async (
-  req: express.Request,
-  res: express.Response,
-): Promise<void> => {
+const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -52,10 +49,7 @@ const getUser = async (
   }
 };
 
-const updateUser = async (
-  req: express.Request,
-  res: express.Response,
-): Promise<void> => {
+const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
