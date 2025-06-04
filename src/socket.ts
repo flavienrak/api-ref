@@ -57,6 +57,7 @@ io.on('connection', async (socket: Socket) => {
 
   await socket.join(`user-${userId}`);
 
+  io.emit('roomJoined');
   io.emit('getOnlineUsers', Array.from(allUsers.keys()));
 
   socket.on('disconnect', async () => {
