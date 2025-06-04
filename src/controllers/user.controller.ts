@@ -35,12 +35,6 @@ const getUser = async (
       return;
     }
 
-    if (userData.role === 'user') {
-      cvMinuteCount = await prisma.cvMinute.count({
-        where: { userId: userData.id, qualiCarriereRef: false },
-      });
-    }
-
     const { password, ...userWithoutPassword } = userData;
 
     res.status(200).json({

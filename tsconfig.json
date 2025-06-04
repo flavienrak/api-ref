@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "ES2022",
-    "target": "ES2022",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "target": "ES2022", // recommandé avec NodeNext
     "outDir": "dist",
     "rootDir": "src", // important pour garder la structure
     "baseUrl": "src", // permet de créer un alias vers src/
@@ -13,8 +13,10 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"]
 }
