@@ -14,7 +14,7 @@ export async function sendVerificationCode(req: Request, res: Response) {
       return;
     }
 
-    const body: { name: string; email: string } = req.body;
+    const body: { name: string; email: string; password: string } = req.body;
     // if (!body.email || !body.name) {
     //   res.status(400).json({ error: 'Email et nom requis' });
     //   return;
@@ -23,7 +23,7 @@ export async function sendVerificationCode(req: Request, res: Response) {
     let user = await prisma.user.findUnique({ where: { email: body.email } });
     if (!user) {
       user = await prisma.user.create({
-        data: { name: body.name, email: body.email },
+        data: { name: body.name, email: body.email, password: body.password },
       });
     }
 
