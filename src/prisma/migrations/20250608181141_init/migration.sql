@@ -1,33 +1,36 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'user',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-  - You are about to drop the column `code` on the `Room` table. All the data in the column will be lost.
-  - You are about to drop the column `createdBy` on the `Room` table. All the data in the column will be lost.
-  - You are about to drop the `UserCard` table. If the table is not empty, all the data it contains will be lost.
-  - Added the required column `name` to the `Room` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `userId` to the `Room` table without a default value. This is not possible if the table is not empty.
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
-*/
--- DropForeignKey
-ALTER TABLE "Room" DROP CONSTRAINT "Room_createdBy_fkey";
+-- CreateTable
+CREATE TABLE "Room" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- DropForeignKey
-ALTER TABLE "UserCard" DROP CONSTRAINT "UserCard_roomId_fkey";
+    CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
+);
 
--- DropForeignKey
-ALTER TABLE "UserCard" DROP CONSTRAINT "UserCard_userId_fkey";
+-- CreateTable
+CREATE TABLE "UserRoom" (
+    "id" SERIAL NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'user',
+    "roomId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
 
--- DropIndex
-DROP INDEX "Room_code_key";
-
--- AlterTable
-ALTER TABLE "Room" DROP COLUMN "code",
-DROP COLUMN "createdBy",
-ADD COLUMN     "name" TEXT NOT NULL,
-ADD COLUMN     "userId" INTEGER NOT NULL;
-
--- DropTable
-DROP TABLE "UserCard";
+    CONSTRAINT "UserRoom_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Vote" (
@@ -56,10 +59,22 @@ CREATE TABLE "Card" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserRoom_roomId_userId_key" ON "UserRoom"("roomId", "userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Card_userId_voteId_key" ON "Card"("userId", "voteId");
 
 -- AddForeignKey
 ALTER TABLE "Room" ADD CONSTRAINT "Room_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserRoom" ADD CONSTRAINT "UserRoom_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserRoom" ADD CONSTRAINT "UserRoom_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Vote" ADD CONSTRAINT "Vote_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
