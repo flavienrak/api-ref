@@ -11,8 +11,9 @@ export const verifyToken = (req: Request, res: Response): void => {
       return;
     }
 
-    const decoded = jwt.verify(token, secretKey);
-    res.status(200).json({ payload: decoded });
+    jwt.verify(token, secretKey);
+
+    res.status(200).json({ decoded: true });
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
       res.json({ expired: true });

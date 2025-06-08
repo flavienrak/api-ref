@@ -1,7 +1,5 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { Resend } from 'resend';
-import nodemailer from 'nodemailer';
 import session from 'express-session';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -9,11 +7,10 @@ dotenv.config();
 import { app, logger, server } from '@/socket';
 
 import accessRoutes from '@/routes/access.routes';
-import { isVerified } from './middlewares/isVerified.middleware';
 import roomRoutes from './routes/room.routes';
 import authRoutes from './routes/auth.routes';
 import googleRoutes from './routes/google.routes';
-import { google } from 'googleapis';
+import verifyRoutes from './routes/verify.routes';
 import tokenRoutes from './routes/token.routes';
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
@@ -33,6 +30,7 @@ app.use('/api', googleRoutes);
 app.use('/api/access', accessRoutes);
 app.use('/api/room', roomRoutes);
 app.use('/api/token', tokenRoutes);
+app.use('/api', verifyRoutes);
 const port = process.env.BACKEND_PORT;
 if (!port) {
   logger.error('ENV NOT FOUND');
