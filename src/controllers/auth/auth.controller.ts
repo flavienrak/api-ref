@@ -14,7 +14,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+      res.json({ errors: errors.array() });
       return;
     }
 
@@ -25,13 +25,13 @@ const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      res.status(404).json({ userNotFound: true });
+      res.json({ userNotFound: true });
       return;
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      res.status(401).json({ incorrectPassword: true });
+      res.json({ incorrectPassword: true });
       return;
     }
 
@@ -52,7 +52,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     };
 
     res.cookie(authTokenName, token, cookieOptions);
-    res.status(200).json({ user: { id: user.id, role: user.role } });
+    res.status(200).json({ user: { id: user.id } });
   } catch (error) {
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -65,7 +65,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+      res.json({ errors: errors.array() });
       return;
     }
 
@@ -84,7 +84,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (existingUser) {
-      res.status(409).json({ userAlreadyExist: true });
+      res.json({ userAlreadyExist: true });
       return;
     }
 

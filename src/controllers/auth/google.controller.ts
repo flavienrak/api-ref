@@ -28,7 +28,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
   // console.log('code:', code);
 
   if (!code) {
-    res.status(400).json({ error: 'Authorization code not provided.' });
+    res.json({ error: 'Authorization code not provided.' });
     return;
   }
 
@@ -43,7 +43,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
     const payload = ticket.getPayload();
 
     if (!payload) {
-      res.status(400).json({ error: 'Invalid token payload' });
+      res.json({ error: 'Invalid token payload' });
       return;
     }
 
