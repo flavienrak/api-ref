@@ -19,25 +19,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cards        UserCard[]
+  cards        Card[]
   rooms        UserRoom[]
   createdRooms Room[]     @relation("RoomCreator")
-}
-
-model UserCard {
-  id    Int    @id @default(autoincrement())
-  value String
-
-  userId Int
-  roomId Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
-  room Room @relation(fields: [roomId], references: [id])
-
-  @@unique([userId, roomId])
 }
 
 model Room {
@@ -50,7 +34,7 @@ model Room {
   updatedAt DateTime @updatedAt
 
   users UserRoom[]
-  cards UserCard[]
+  votes Vote[]
   user  User       @relation("RoomCreator", fields: [userId], references: [id])
 }
 
@@ -65,4 +49,36 @@ model UserRoom {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([roomId, userId])
+}
+
+model Vote {
+  id      Int    @id @default(autoincrement())
+  content String
+  min     Int    @default(1)
+  max     Int    @default(5)
+  mid     Int    @default(1)
+
+  roomId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cards Card[]
+  room  Room   @relation(fields: [roomId], references: [id])
+}
+
+model Card {
+  id    Int    @id @default(autoincrement())
+  value String
+
+  userId Int
+  voteId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  vote Vote @relation(fields: [voteId], references: [id])
+
+  @@unique([userId, voteId])
 }
