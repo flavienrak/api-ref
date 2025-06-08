@@ -6,7 +6,9 @@ const tokenName = process.env.AUTH_TOKEN_NAME as string;
 
 export const checkConnectionStatus = (req: Request, res: Response): void => {
   try {
+    console.log('tokenName:', tokenName);
     const token = req.cookies?.[tokenName];
+    console.log('token:', token);
 
     if (!token) {
       res.json({ noToken: true });
@@ -21,6 +23,7 @@ export const checkConnectionStatus = (req: Request, res: Response): void => {
         secure: true,
         sameSite: 'none',
       });
+
       res.json({ userNotFound: true });
       return;
     }
