@@ -21,17 +21,17 @@ export const verifyCode = async (
 
     const decoded = jwt.verify(token, secretKey) as JwtPayload & {
       infos: {
-        code: number;
-        id: number;
+        code: string;
+        id: string;
       };
     };
 
-    const expectedCode: number | undefined = decoded.infos.code;
-    const userId: number | undefined = decoded.infos.id;
-    console.log('expectedCode:', expectedCode);
-    console.log('code:', code);
-    if (expectedCode && code === expectedCode) {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+    const expectedCode: string | undefined = decoded.infos.code;
+    const userId: string | undefined = decoded.infos.id;
+    if (expectedCode && code === Number(expectedCode)) {
+      const user = await prisma.user.findUnique({
+        where: { id: Number(userId) },
+      });
       if (!user) {
         res.json({ userNotFound: true });
         return;
