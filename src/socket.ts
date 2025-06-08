@@ -44,7 +44,7 @@ const io = new Server(server, {
 interface CardChoicePayload {
   roomCode: string;
   userId: string;
-  cards: number[]; 
+  cards: number[];
 }
 
 interface RevealPayload {
@@ -73,24 +73,22 @@ export function setupSocket(io: Server) {
         });
         if (!room) return;
 
-        // 
+        //
         await prisma.userCard.createMany({
           data: cards.map((cardId) => ({
             userId: Number(userId),
             cardId: cardId,
-            roomId: room.id, 
+            roomId: room.id,
           })),
-          skipDuplicates: true, 
+          skipDuplicates: true,
         });
 
-      
         io.to(roomCode).emit('cards-updated', { userId, cards });
       } catch (err) {
         console.error(' Erreur lors du choix de carte :', err);
       }
     });
 
-    
     socket.on('reveal-cards', async (payload: RevealPayload) => {
       const { roomCode, userId } = payload;
 
@@ -105,7 +103,7 @@ export function setupSocket(io: Server) {
         }
 
         const userCards = await prisma.userCard.findMany({
-          where: { room: { code: roomCode } }, 
+          where: { room: { code: roomCode } },
           include: {
             card: true,
             user: { select: { id: true, name: true, email: true } },
@@ -115,7 +113,7 @@ export function setupSocket(io: Server) {
         // Révéler à tout le monde
         io.to(roomCode).emit('cards-revealed', {
           cards: userCards.map((uc: any) => ({
-            number: uc.card.value, 
+            number: uc.card.value,
             user: uc.user,
           })),
         });
