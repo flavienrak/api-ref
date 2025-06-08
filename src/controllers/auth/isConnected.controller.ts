@@ -13,9 +13,9 @@ export const checkConnectionStatus = (req: Request, res: Response): void => {
       return;
     }
 
-    const decoded = jwt.verify(token, secretKey);
+    const decoded = jwt.verify(token, secretKey) as { infos?: { id?: string } };
 
-    res.json({ decoded });
+    res.json({ id: decoded.infos?.id });
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
       res.json({ expired: true });
