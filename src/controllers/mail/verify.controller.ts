@@ -29,8 +29,9 @@ export const verifyCode = async (
     const expectedCode: string | undefined = decoded.infos.code;
     const userId: string | undefined = decoded.infos.id;
     if (expectedCode && code === Number(expectedCode)) {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.user.update({
         where: { id: Number(userId) },
+        data: { isVerified: true },
       });
       if (!user) {
         res.json({ userNotFound: true });
