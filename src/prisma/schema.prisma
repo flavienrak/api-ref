@@ -10,83 +10,51 @@ datasource db {
 }
 
 model User {
-  id               Int     @id @default(autoincrement())
-  name             String
-  email            String  @unique
-  password        String
-  role             String  @default("user")
-  isVerified Boolean @default(false)
-  cards            UserCard[]
-  rooms            RoomUser[]
-  verificationCodes VerificationCode[]
-  createdRooms     Room[] @relation("RoomCreator") // <--- pour les rooms créées
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  files            File[]
-}
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-model Card {
-  id        Int        @id @default(autoincrement())
-  value     String
-  users     UserCard[]
+  cards        UserCard[]
+  rooms        UserRoom[]
+  createdRooms Room[]     @relation("RoomCreator")
 }
 
 model UserCard {
+  id     Int    @id @default(autoincrement())
   userId Int
   cardId Int
+  value  String
   roomId Int
 
-  user   User @relation(fields: [userId], references: [id])
-  card   Card @relation(fields: [cardId], references: [id])
-  room   Room @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
 
-  @@id([userId, cardId, roomId])
+  @@unique([userId, cardId, roomId])
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
+  id        Int        @id @default(autoincrement())
+  code      String     @unique
   createdBy Int
-  creator   User     @relation("RoomCreator", fields: [createdBy], references: [id])
-  users     RoomUser[]
+  userId    User       @relation("RoomCreator", fields: [createdBy], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  users     UserRoom[]
   cards     UserCard[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
-model RoomUser {
+model UserRoom {
+  id     Int    @id @default(autoincrement())
   roomId Int
   userId Int
-  role   String   @default("user") 
+  role   String @default("user")
 
-  room    Room @relation(fields: [roomId], references: [id])
-  user    User @relation(fields: [userId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  @@id([roomId, userId])
+  @@unique([roomId, userId])
 }
-
-model VerificationCode {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  email       String @unique
-  code        String   
-  expiresAt   DateTime 
-  used        Boolean  @default(false) 
-
-  user        User     @relation(fields: [userId], references: [id])
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
- model File {
-   id           Int    @id @default(autoincrement())
-  name         String
-   originalName String
-   extension    String
-   usage        String
-   userId       Int
-   createdAt DateTime @default(now())
-   updatedAt DateTime @updatedAt
-   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- }
-

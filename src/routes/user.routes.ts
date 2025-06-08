@@ -3,5 +3,5 @@ import { getUserWithRooms } from '@/controllers/user.controller';
 import { Router } from 'express';
 
 const router = Router();
-router.get('/:id/rooms', getUserWithRooms);
+router.get('/rooms', getUserWithRooms);
 export default router;

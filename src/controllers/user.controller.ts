@@ -1,11 +1,23 @@
 import { Request, Response } from 'express';
 import prisma from '@/lib/db';
+import jwt from 'jsonwebtoken';
+
+const secretKey = process.env.JWT_SECRET_KEY as string;
+const tokenName = process.env.AUTH_TOKEN_NAME as string;
 
 export const getUserWithRooms = async (req: Request, res: Response) => {
   try {
-    const userId = Number(req.params.id);
-    if (isNaN(userId)) {
-      res.json({ error: 'ID utilisateur invalide' });
+    const token = req.cookies?.[tokenName];
+    if (!token) {
+      res.json({ notAuthentificate: true });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secretKey) as { infos?: { id?: number } };
+    const userId = decoded.infos?.id;
+
+    if (!userId) {
+      res.json({ invalidToken: true });
       return;
     }
 
@@ -21,19 +33,14 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      res.json({ error: 'Utilisateur non trouvé' });
+      res.json({ userNotFound: true });
       return;
     }
 
     const rooms = user.rooms.map((roomUser) => roomUser.room);
 
-    res.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      rooms,
-    });
+    res.json({ user });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error });
   }
 };
