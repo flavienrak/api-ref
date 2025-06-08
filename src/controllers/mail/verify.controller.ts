@@ -52,9 +52,9 @@ export const verifyCode = async (
       };
 
       res.cookie(authTokenName, authToken, cookieOptions);
-      res.status(200).json({ codeValid: true });
+      res.status(200).json({ valid: true });
     } else {
-      res.json({ codeValid: false });
+      res.json({ invalid: true });
     }
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
