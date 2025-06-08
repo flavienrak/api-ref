@@ -13,9 +13,17 @@ export const checkConnectionStatus = (req: Request, res: Response): void => {
       return;
     }
 
-    const decoded = jwt.verify(token, secretKey) as { infos?: { id?: string } };
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
 
-    res.json({ id: decoded.infos?.id });
+    if (!decoded.infos.id) {
+      res.clearCookie(tokenName, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
+      res.json({ userNotFound: true });
+    }
+    res.json({ id: decoded.infos.id });
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
       res.json({ expired: true });
