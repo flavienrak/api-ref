@@ -24,10 +24,9 @@ export const verifyCode = async (
     const userId = decoded.infos?.id;
 
     if (expectedCode && code === expectedCode) {
-      // res.json({ codeValid: true, userId: decoded.infos.id });
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
-        res.json({ message: 'Utilisateur non trouvé.' });
+        res.json({ userNotFound: true });
         return;
       }
       const payload = {
@@ -47,13 +46,13 @@ export const verifyCode = async (
       };
 
       res.cookie(authTokenName, authToken, cookieOptions);
-      res.status(200).json({ codeValid: true, user: { id: user.id } });
+      res.status(200).json({ codeValid: true });
     } else {
       res.json({ codeValid: false });
     }
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      res.json({ expired: true, message: 'Token expiré.' });
+      res.json({ expired: true });
     } else {
       res.status(500).json({ error });
     }
