@@ -24,10 +24,13 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        rooms: {
+        userRooms: {
           include: {
             room: {
-              include: { users: true, votes: { include: { cards: true } } },
+              include: {
+                users: true,
+                votes: { include: { cards: true } },
+              },
             },
           },
         },
