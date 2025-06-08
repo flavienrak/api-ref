@@ -25,7 +25,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Backend running successfully!');
 });
 app.use('/api/auth', authRoutes);
-app.use('/api', googleRoutes);
+app.use('/api/google', googleRoutes);
 app.use('/api/access', accessRoutes);
 app.use('/api/room', roomRoutes);
 app.use('/api/mail', mailRoutes);
