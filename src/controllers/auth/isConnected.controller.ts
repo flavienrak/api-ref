@@ -22,6 +22,7 @@ export const checkConnectionStatus = (req: Request, res: Response): void => {
         sameSite: 'none',
       });
       res.json({ userNotFound: true });
+      return;
     }
     res.json({ id: decoded.infos.id });
   } catch (error: any) {
