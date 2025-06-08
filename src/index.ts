@@ -13,8 +13,7 @@ import accessRoutes from '@/routes/access.routes';
 import { isVerified } from './middlewares/isVerified.middleware';
 import roomRoutes from './routes/room.routes';
 import authRoutes from './routes/auth.routes';
-
-// import googleRoutes from './routes/auth===='
+import googleRoutes from './routes/google.routes';
 import { google } from 'googleapis';
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
