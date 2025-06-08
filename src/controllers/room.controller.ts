@@ -46,7 +46,12 @@ export async function createRoom(req: Request, res: Response) {
 
 // Rejoindre une room
 export async function joinRoom(req: Request, res: Response) {
-  const body: { roomCode: string; name: string; email: string } = req.body;
+  const body: {
+    roomCode: string;
+    name: string;
+    email: string;
+    password: string;
+  } = req.body;
   // if (!body.roomCode || !body.email || !body.name) {
   //   res.status(400).json({ error: 'Champs requis' });
   //   return;
@@ -57,7 +62,7 @@ export async function joinRoom(req: Request, res: Response) {
 
     if (!user) {
       user = await prisma.user.create({
-        data: { email: body.email, name: body.name },
+        data: { email: body.email, name: body.name, password: body.password },
       });
     }
 
