@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import winston from 'winston';
 import compression from 'compression';
 import { Server, Socket } from 'socket.io';
+import prisma from '@/lib/db';
 
 dotenv.config();
 const app = express();
@@ -40,40 +41,94 @@ const io = new Server(server, {
   },
 });
 
-const allUsers = new Map<string, { socket: Socket; count: number }>();
+interface CardChoicePayload {
+  roomCode: string;
+  userId: string;
+  cards: number[]; 
+}
 
-io.on('connection', async (socket: Socket) => {
-  const userId = socket.handshake.query.id as string | undefined;
+interface RevealPayload {
+  roomCode: string;
+  userId: string;
+}
 
-  if (!userId) return;
+export function setupSocket(io: Server) {
+  io.on('connection', (socket: Socket) => {
+    console.log('🔌 Nouvelle connexion socket :', socket.id);
 
-  const existingUser = allUsers.get(userId);
+    // Quand un user rejoint un room
+    socket.on('join-room', ({ roomCode }) => {
+      socket.join(roomCode);
+      console.log(` ${socket.id} a rejoint la room ${roomCode}`);
+    });
 
-  if (existingUser) {
-    existingUser.count += 1;
-  } else {
-    allUsers.set(userId, { socket, count: 1 });
-  }
+    // Quand un user choisit ses cartes
+    socket.on('choose-cards', async (payload: CardChoicePayload) => {
+      const { roomCode, userId, cards } = payload;
 
-  await socket.join(`user-${userId}`);
+      try {
+        const room = await prisma.room.findUnique({
+          where: { code: roomCode },
+          include: { users: true },
+        });
+        if (!room) return;
 
-  io.emit('getOnlineUsers', Array.from(allUsers.keys()));
+        // 
+        await prisma.userCard.createMany({
+          data: cards.map((cardId) => ({
+            userId: Number(userId),
+            cardId: cardId,
+            roomId: room.id, 
+          })),
+          skipDuplicates: true, 
+        });
 
-  socket.on('disconnect', async () => {
-    const userData = allUsers.get(userId);
-    if (!userData) return;
+      
+        io.to(roomCode).emit('cards-updated', { userId, cards });
+      } catch (err) {
+        console.error(' Erreur lors du choix de carte :', err);
+      }
+    });
 
-    userData.count -= 1;
+    
+    socket.on('reveal-cards', async (payload: RevealPayload) => {
+      const { roomCode, userId } = payload;
 
-    if (userData.count <= 0) {
-      allUsers.delete(userId);
-    } else {
-      allUsers.set(userId, userData);
-    }
+      try {
+        const room = await prisma.room.findUnique({
+          where: { code: roomCode },
+        });
 
-    io.emit('getOnlineUsers', Array.from(allUsers.keys()));
+        if (!room || room.createdBy !== Number(userId)) {
+          socket.emit('reveal-error', { error: 'Accès refusé' });
+          return;
+        }
+
+        const userCards = await prisma.userCard.findMany({
+          where: { room: { code: roomCode } }, 
+          include: {
+            card: true,
+            user: { select: { id: true, name: true, email: true } },
+          },
+        });
+
+        // Révéler à tout le monde
+        io.to(roomCode).emit('cards-revealed', {
+          cards: userCards.map((uc: any) => ({
+            number: uc.card.value, 
+            user: uc.user,
+          })),
+        });
+      } catch (err) {
+        console.error(' Erreur lors de la révélation :', err);
+      }
+    });
+
+    socket.on('disconnect', () => {
+      console.log(' Déconnexion socket :', socket.id);
+    });
   });
-});
+}
 
 const logger = winston.createLogger({
   level: 'info',

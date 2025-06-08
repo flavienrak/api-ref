@@ -24,7 +24,8 @@ const isAuthenticated = async (
 
           if (user) {
             res.locals.user = user;
-            return next();
+            next();
+            return;
           } else {
             res.locals.user = null;
             res.clearCookie(authTokenName);
