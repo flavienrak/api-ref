@@ -1,0 +1,35 @@
+### Envoi du code de vérification
+POST http://localhost:8000/api/access/auth/send-code
+Content-Type: application/json
+
+{
+  "name": "shanjeev",
+  "email": "murphy24.apollon@gmail.com"
+}
+
+### Vérification du code (remplace 123456 par le vrai code reçu)
+POST http://localhost:8000/api/access/auth/verify-code
+Content-Type: application/json
+
+{
+  "email": "shanjee24.apollon@gmail.com",
+  "code": "123456"
+}
+
+### Création d'une room (si protégé par isVerified)
+POST http://localhost:8000/api/room/create
+Content-Type: application/json
+
+{
+  "email": "murphy24.apollon@gmail.com"
+}
+
+### Rejoindre une room
+POST http://localhost:8000/api/room/join
+Content-Type: application/json
+
+{
+  "roomCode": "a704f799-d01d-4417-a860-53f7179b3eeb",
+  "name": "shanjeev",
+  "email": "shanjeev24.apollon@gmail.com"
+}

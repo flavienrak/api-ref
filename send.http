@@ -1,0 +1,7 @@
+POST http://localhost:8000/auth/test
+Content-Type: application/json
+
+{
+  "name": "shanjeev",
+  "email": "shanjeevrandriantahina@gmail.com"
+}
