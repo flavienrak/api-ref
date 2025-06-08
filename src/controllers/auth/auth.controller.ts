@@ -110,10 +110,10 @@ const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     await transporter.sendMail({
-      from: `"Ton App" <${process.env.GMAIL_USER}>`,
+      from: 'Card',
       to: email,
-      subject: 'Votre code de verification',
-      html: `<p>Bonjour ${name},voici votre code : <strong >${code} </strong>.</p>`,
+      subject: 'Code de verification',
+      html: `<p>Bonjour ${name}, votre code de vérification est : <strong >${code} </strong>.</p>`,
     });
 
     const payload = {
