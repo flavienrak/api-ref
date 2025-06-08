@@ -6,8 +6,6 @@ dotenv.config();
 
 import { app, logger, server } from '@/socket';
 
-import accessRoutes from '@/routes/access.routes';
-import roomRoutes from './routes/room.routes';
 import authRoutes from './routes/auth.routes';
 import googleRoutes from './routes/google.routes';
 import mailRoutes from './routes/mail/mail.routes';
@@ -27,8 +25,6 @@ app.get('/', (req: Request, res: Response) => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/google', googleRoutes);
-app.use('/api/access', accessRoutes);
-app.use('/api/room', roomRoutes);
 app.use('/api/mail', mailRoutes);
 app.use('/api/user', userRoutes);
 const port = process.env.BACKEND_PORT;
