@@ -63,64 +63,64 @@ export function setupSocket(io: Server) {
     });
 
     // Quand un user choisit ses cartes
-    socket.on('choose-cards', async (payload: CardChoicePayload) => {
-      const { roomCode, userId, cards } = payload;
+    // socket.on('choose-cards', async (payload: CardChoicePayload) => {
+    //   const { roomCode, userId, cards } = payload;
 
-      try {
-        const room = await prisma.room.findUnique({
-          where: { code: roomCode },
-          include: { users: true },
-        });
-        if (!room) return;
+    //   try {
+    //     const room = await prisma.room.findUnique({
+    //       where: { code: roomCode },
+    //       include: { users: true },
+    //     });
+    //     if (!room) return;
 
-        //
-        await prisma.userCard.createMany({
-          data: cards.map((cardId) => ({
-            userId: Number(userId),
-            cardId: cardId,
-            roomId: room.id,
-          })),
-          skipDuplicates: true,
-        });
+    //     //
+    //     await prisma.userCard.createMany({
+    //       data: cards.map((cardId) => ({
+    //         userId: Number(userId),
+    //         cardId: cardId,
+    //         roomId: room.id,
+    //       })),
+    //       skipDuplicates: true,
+    //     });
 
-        io.to(roomCode).emit('cards-updated', { userId, cards });
-      } catch (err) {
-        console.error(' Erreur lors du choix de carte :', err);
-      }
-    });
+    //     io.to(roomCode).emit('cards-updated', { userId, cards });
+    //   } catch (err) {
+    //     console.error(' Erreur lors du choix de carte :', err);
+    //   }
+    // });
 
-    socket.on('reveal-cards', async (payload: RevealPayload) => {
-      const { roomCode, userId } = payload;
+    // socket.on('reveal-cards', async (payload: RevealPayload) => {
+    //   const { roomCode, userId } = payload;
 
-      try {
-        const room = await prisma.room.findUnique({
-          where: { code: roomCode },
-        });
+    //   try {
+    //     const room = await prisma.room.findUnique({
+    //       where: { code: roomCode },
+    //     });
 
-        if (!room || room.createdBy !== Number(userId)) {
-          socket.emit('reveal-error', { error: 'Accès refusé' });
-          return;
-        }
+    //     if (!room || room.createdBy !== Number(userId)) {
+    //       socket.emit('reveal-error', { error: 'Accès refusé' });
+    //       return;
+    //     }
 
-        const userCards = await prisma.userCard.findMany({
-          where: { room: { code: roomCode } },
-          include: {
-            card: true,
-            user: { select: { id: true, name: true, email: true } },
-          },
-        });
+    //     const userCards = await prisma.userCard.findMany({
+    //       where: { room: { code: roomCode } },
+    //       include: {
+    //         card: true,
+    //         user: { select: { id: true, name: true, email: true } },
+    //       },
+    //     });
 
-        // Révéler à tout le monde
-        io.to(roomCode).emit('cards-revealed', {
-          cards: userCards.map((uc: any) => ({
-            number: uc.card.value,
-            user: uc.user,
-          })),
-        });
-      } catch (err) {
-        console.error(' Erreur lors de la révélation :', err);
-      }
-    });
+    //     // Révéler à tout le monde
+    //     io.to(roomCode).emit('cards-revealed', {
+    //       cards: userCards.map((uc: any) => ({
+    //         number: uc.card.value,
+    //         user: uc.user,
+    //       })),
+    //     });
+    //   } catch (err) {
+    //     console.error(' Erreur lors de la révélation :', err);
+    //   }
+    // });
 
     socket.on('disconnect', () => {
       console.log(' Déconnexion socket :', socket.id);
