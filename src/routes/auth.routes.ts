@@ -4,12 +4,14 @@ import {
   loginValidation,
   registerValidation,
 } from '@/validations/auth.validation';
-import { isAuthenticated } from '@/middlewares/auth.middleware';
 import { login, logout, register } from '@/controllers/auth/auth.controller';
+import { checkConnectionStatus } from '@/controllers/auth/isConnected.controller';
+import { authenticateUser } from '@/middlewares/auth.middleware';
 
 const router = express.Router();
 
 router.post('/login', loginValidation, login);
+router.get('/status', authenticateUser, checkConnectionStatus);
 router.post('/register', registerValidation, register);
 router.get('/logout', logout);
 

@@ -113,7 +113,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
       from: 'Card',
       to: email,
       subject: 'Code de verification',
-      html: `<p>Bonjour ${name}, votre code de vérification est : <strong >${code} </strong>.</p>`,
+      html: `<p>Bonjour ${name}, votre code de vérification est : <strong >${code}</strong>.</p>`,
     });
 
     const payload = {
