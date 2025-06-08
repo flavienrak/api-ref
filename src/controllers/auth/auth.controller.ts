@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/db';
+import nodemailer from 'nodemailer';
 
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
@@ -98,7 +99,33 @@ const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    res.status(201).json({ userId: newUser.id });
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Ton App" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: 'Votre code de verification',
+      html: `<p>Bonjour ${name},voici votre code : <strong >${code} </strong>.</p>`,
+    });
+
+    const payload = {
+      id: newUser.id,
+      code: code,
+    };
+
+    const token = jwt.sign({ infos: payload }, secretKey, {
+      expiresIn: maxAgeAuthToken,
+    });
+
+    res.status(201).json({ token });
   } catch (error) {
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Unknown error',
