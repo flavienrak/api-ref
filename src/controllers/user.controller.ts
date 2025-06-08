@@ -5,7 +5,7 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.id);
     if (isNaN(userId)) {
-      res.status(400).json({ error: 'ID utilisateur invalide' });
+      res.json({ error: 'ID utilisateur invalide' });
       return;
     }
 
@@ -21,7 +21,7 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      res.status(404).json({ error: 'Utilisateur non trouvé' });
+      res.json({ error: 'Utilisateur non trouvé' });
       return;
     }
 
