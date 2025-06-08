@@ -37,8 +37,6 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
       return;
     }
 
-    const rooms = user.rooms.map((roomUser) => roomUser.room);
-
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error });
