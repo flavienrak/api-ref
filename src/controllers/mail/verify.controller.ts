@@ -20,15 +20,16 @@ export const verifyCode = async (
     }
 
     const decoded = jwt.verify(token, secretKey) as JwtPayload & {
-      infos?: {
-        code?: string;
-        id?: number;
+      infos: {
+        code: number;
+        id: number;
       };
     };
 
-    const expectedCode: string | undefined = decoded.infos?.code;
-    const userId: number | undefined = decoded.infos?.id;
-
+    const expectedCode: number | undefined = decoded.infos.code;
+    const userId: number | undefined = decoded.infos.id;
+    console.log('expectedCode:', expectedCode);
+    console.log('code:', code);
     if (expectedCode && code === expectedCode) {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {

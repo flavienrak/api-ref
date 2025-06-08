@@ -110,7 +110,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     await transporter.sendMail({
-      from: 'Card',
+      from: `"Card" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: 'Code de verification',
       html: `<p>Bonjour ${name}, votre code de vérification est : <strong >${code}</strong>.</p>`,
