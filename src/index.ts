@@ -32,7 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', googleRoutes);
 app.use('/api/access', accessRoutes);
 app.use('/api/room', roomRoutes);
-app.use('api/token', tokenRoutes);
+app.use('/api/token', tokenRoutes);
 const port = process.env.BACKEND_PORT;
 if (!port) {
   logger.error('ENV NOT FOUND');
