@@ -5,7 +5,7 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/:token/verify', verifyToken);
-router.post('/verify', verifyCode);
+router.get('/:token', verifyToken);
+router.post('/:token/code', verifyCode);
 
 export default router;

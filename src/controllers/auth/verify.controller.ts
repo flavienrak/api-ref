@@ -1,6 +1,6 @@
 import prisma from '@/lib/db';
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const secretKey = process.env.JWT_SECRET_KEY!;
 const authTokenName = process.env.AUTH_TOKEN_NAME!;
@@ -11,17 +11,23 @@ export const verifyCode = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { code, token } = req.body;
+    const { code } = req.body;
+    const { token } = req.params;
 
     if (!token || !code) {
       res.json({ message: 'aucun token fourni' });
       return;
     }
 
-    const decoded: any = jwt.verify(token, secretKey);
+    const decoded = jwt.verify(token, secretKey) as JwtPayload & {
+      infos?: {
+        code?: string;
+        id?: number;
+      };
+    };
 
-    const expectedCode = decoded.infos?.code;
-    const userId = decoded.infos?.id;
+    const expectedCode: string | undefined = decoded.infos?.code;
+    const userId: number | undefined = decoded.infos?.id;
 
     if (expectedCode && code === expectedCode) {
       const user = await prisma.user.findUnique({ where: { id: userId } });
