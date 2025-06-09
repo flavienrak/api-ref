@@ -11,7 +11,7 @@ const router = Router();
 
 //room
 router.post('/', room);
-router.get('/:id', getUserRoom);
+router.get('/user', getUserRoom);
 router.delete('/:id', deleteRoom);
 
 //vote

@@ -73,7 +73,6 @@ export const getUserRoom = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { id } = req.params;
     const token = req.cookies?.[tokenName];
 
     if (!token) {
@@ -84,11 +83,6 @@ export const getUserRoom = async (
     const userId = Number(decoded.infos.id);
     if (!userId) {
       res.json({ error: 'Token invalide' });
-      return;
-    }
-
-    if (!id || isNaN(Number(id))) {
-      res.json({ invalidId: true });
       return;
     }
 
