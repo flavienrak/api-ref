@@ -32,6 +32,7 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
                 votes: { include: { cards: true } },
               },
             },
+            user: true,
           },
         },
       },

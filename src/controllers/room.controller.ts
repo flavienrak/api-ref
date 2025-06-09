@@ -48,7 +48,20 @@ export const room = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    res.json({ userRoom: { ...userRoom, room: newRoom } });
+    const createdUserRoom = await prisma.userRoom.findUnique({
+      where: { id: userRoom.id },
+      include: {
+        room: {
+          include: {
+            users: true,
+            votes: { include: { cards: true } },
+          },
+        },
+        user: true,
+      },
+    });
+
+    res.json({ userRoom: createdUserRoom });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création de la room' });
   }
