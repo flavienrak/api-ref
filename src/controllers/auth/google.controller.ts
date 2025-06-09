@@ -23,58 +23,57 @@ export const google = (req: Request, res: Response) => {
   res.redirect(url);
 };
 
-// export const callback = async (req: Request, res: Response): Promise<void> => {
-//   const code = req.query.code as string;
+export const callback = async (req: Request, res: Response): Promise<void> => {
+  const code = req.query.code as string;
+  if (!code) {
+    res.json({ error: 'Authorization code not provided.' });
+    return;
+  }
 
-//   if (!code) {
-//     res.json({ error: 'Authorization code not provided.' });
-//     return;
-//   }
+  //   try {
+  //     const { tokens } = await client.getToken(code);
 
-//   try {
-//     const { tokens } = await client.getToken(code);
+  //     const ticket = await client.verifyIdToken({
+  //       idToken: tokens.id_token!,
+  //       audience: process.env.GOOGLE_CLIENT_ID,
+  //     });
 
-//     const ticket = await client.verifyIdToken({
-//       idToken: tokens.id_token!,
-//       audience: process.env.GOOGLE_CLIENT_ID,
-//     });
+  //     const payload = ticket.getPayload();
 
-//     const payload = ticket.getPayload();
+  //     if (!payload || !payload.email) {
+  //       res.json({ error: 'Invalid token payload' });
+  //       return;
+  //     }
 
-//     if (!payload || !payload.email) {
-//       res.json({ error: 'Invalid token payload' });
-//       return;
-//     }
+  //     let user = await prisma.user.findUnique({
+  //       where: { email: payload.email },
+  //     });
 
-//     let user = await prisma.user.findUnique({
-//       where: { email: payload.email },
-//     });
+  //      if (!user) {
+  //        user = await prisma.user.create({
+  //          data: {
+  //            email: payload.email,
+  //            name: payload.name || '',
+  //           password:'password',
+  //     isVerified:false,
+  //          },
+  //        });
 
-//      if (!user) {
-//        user = await prisma.user.create({
-//          data: {
-//            email: payload.email,
-//            name: payload.name || '',
-//           password:'password',
-//     isVerified:false,
-//          },
-//        });
+  //      const token = jwt.sign(
+  //        { infos: { id: user.id, email: user.email } },
+  //        secretKey,
+  //        { expiresIn: '7d' },
+  //      )
+  //      res.cookie(tokenName, token, {
+  //        httpOnly: true,
+  //        secure: true,
+  //        sameSite: 'none' as const,
+  //        maxAge: 7 * 24 * 60 * 60 * 1000,
+  //      });
 
-//      const token = jwt.sign(
-//        { infos: { id: user.id, email: user.email } },
-//        secretKey,
-//        { expiresIn: '7d' },
-//      )
-//      res.cookie(tokenName, token, {
-//        httpOnly: true,
-//        secure: true,
-//        sameSite: 'none' as const,
-//        maxAge: 7 * 24 * 60 * 60 * 1000,
-//      });
-
-//     res.redirect('/');
-//   } catch (error) {
-//     console.error('Google OAuth error:', error);
-//     res.status(500).json({ error: 'Authentication failed.' });
-//   }
-// };
+  //     res.redirect('/');
+  //   } catch (error) {
+  //     console.error('Google OAuth error:', error);
+  //     res.status(500).json({ error: 'Authentication failed.' });
+  //   }
+};
