@@ -58,7 +58,13 @@ export const room = async (req: Request, res: Response): Promise<void> => {
             votes: { include: { cards: true } },
           },
         },
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+          },
+        },
       },
     });
 
