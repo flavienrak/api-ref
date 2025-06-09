@@ -26,11 +26,9 @@ model User {
 }
 
 model Room {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  userId Int
-
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -42,46 +40,41 @@ model Room {
 }
 
 model UserRoom {
-  id   Int    @id @default(autoincrement())
-  role String @default("user")
-
+  id     Int    @id @default(autoincrement())
+  role   String @default("user")
   roomId Int
   userId Int
 
-  room Room @relation(fields: [roomId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([roomId, userId])
 }
 
 model Vote {
-  id      Int    @id @default(autoincrement())
-  content String
-  min     Int    @default(1)
-  max     Int    @default(5)
-  mid     Int    @default(1)
-
-  roomId Int
-
+  id        Int      @id @default(autoincrement())
+  content   String
+  min       Int      @default(1)
+  max       Int      @default(5)
+  mid       Int      @default(1)
+  roomId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   cards Card[]
-  room  Room   @relation(fields: [roomId], references: [id])
+  room  Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 model Card {
-  id    Int    @id @default(autoincrement())
-  value String
-
-  userId Int
-  voteId Int
-
+  id        Int      @id @default(autoincrement())
+  value     String
+  userId    Int
+  voteId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
-  vote Vote @relation(fields: [voteId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vote Vote @relation(fields: [voteId], references: [id], onDelete: Cascade)
 
   @@unique([userId, voteId])
 }

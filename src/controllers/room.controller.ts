@@ -97,3 +97,29 @@ export const getRoomById = async (
     res.status(500).json({ error });
   }
 };
+
+export const deleteRoom = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (isNaN(Number(id))) {
+      res.json({ invalidId: true });
+      return;
+    }
+
+    const room = await prisma.room.findUnique({ where: { id: Number(id) } });
+    if (!room) {
+      res.json({ roomNotFound: true });
+      return;
+    }
+
+    await prisma.room.delete({ where: { id: Number(id) } });
+
+    res.json({ deleted: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression de la room' });
+  }
+};
