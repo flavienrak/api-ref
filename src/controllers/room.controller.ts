@@ -41,7 +41,14 @@ export const room = async (req: Request, res: Response): Promise<void> => {
       data: { name, userId },
     });
 
-    res.json({ room: { ...newRoom, users: [], votes: [] } });
+    const userRoom = await prisma.userRoom.create({
+      data: {
+        userId,
+        roomId: newRoom.id,
+      },
+    });
+
+    res.json({ userRoom: { ...userRoom, room: newRoom } });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création de la room' });
   }
