@@ -106,7 +106,17 @@ export const getUserRoom = async (
               },
             },
             votes: { include: { cards: true } },
-            users: true,
+            users: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    role: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -146,7 +156,17 @@ export const getRoomById = async (
           },
         },
         votes: { include: { cards: true } },
-        users: true,
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                role: true,
+              },
+            },
+          },
+        },
       },
     });
     if (!room) {
