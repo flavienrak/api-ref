@@ -24,9 +24,9 @@ export const room = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const existingRoom = await prisma.room.findMany({ where: { name } });
+    const existingRoom = await prisma.room.findUnique({ where: { name } });
     if (existingRoom) {
-      res.json({ roomAlreadyExists: true });
+      res.json({ roomAlreadyExist: true });
       return;
     }
 
