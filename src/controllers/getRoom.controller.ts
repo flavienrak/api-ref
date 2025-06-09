@@ -27,6 +27,6 @@ export const getRoomById = async (
 
     res.json({ room });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error });
   }
 };
