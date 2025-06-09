@@ -66,3 +66,34 @@ export const room = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: 'Erreur lors de la création de la room' });
   }
 };
+
+export const getRoomById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (isNaN(Number(id))) {
+      res.json({ invalidId: true });
+      return;
+    }
+
+    const room = await prisma.room.findUnique({
+      where: { id: Number(id) },
+      include: {
+        users: true,
+        votes: { include: { cards: true } },
+      },
+    });
+
+    if (!room) {
+      res.json({ roomNotFound: true });
+      return;
+    }
+
+    res.json({ room });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
