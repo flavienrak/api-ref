@@ -54,7 +54,7 @@ export const room = async (req: Request, res: Response): Promise<void> => {
       include: {
         room: {
           include: {
-            users: true,
+            userRooms: true,
             votes: { include: { cards: true } },
           },
         },
@@ -104,7 +104,7 @@ export const getUserRoom = async (
               },
             },
             votes: { include: { cards: true } },
-            users: {
+            userRooms: {
               include: {
                 user: {
                   select: {
@@ -152,7 +152,7 @@ export const getRoomById = async (
           },
         },
         votes: { include: { cards: true } },
-        users: {
+        userRooms: {
           include: {
             user: {
               select: {

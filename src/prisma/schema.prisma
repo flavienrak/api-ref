@@ -32,9 +32,9 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users UserRoom[]
-  votes Vote[]
-  user  User       @relation("RoomCreator", fields: [userId], references: [id])
+  userRooms UserRoom[]
+  votes     Vote[]
+  user      User       @relation("RoomCreator", fields: [userId], references: [id])
 
   @@unique([name, userId])
 }
