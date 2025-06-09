@@ -28,7 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/google', googleRoutes);
 app.use('/api/mail', mailRoutes);
 app.use('/api/user', userRoutes);
-app.use('api/room', roomRoutes);
+app.use('/api/room', roomRoutes);
 const port = process.env.BACKEND_PORT;
 if (!port) {
   logger.error('ENV NOT FOUND');
