@@ -138,3 +138,78 @@ export const deleteRoom = async (
     res.status(500).json({ error: 'Erreur lors de la suppression de la room' });
   }
 };
+
+export const createVote = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { content, min, max, mid } = req.body;
+    const { roomId } = req.params;
+    const token = req.cookies?.[tokenName];
+
+    if (!token) {
+      res.json({ error: 'Non authentifié' });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+    if (!userId) {
+      res.json({ error: 'Token invalide' });
+      return;
+    }
+
+    if (!content || !roomId) {
+      res.json({ error: 'Champs requis manquants' });
+      return;
+    }
+
+    const vote = await prisma.vote.create({
+      data: {
+        content,
+        min: min ?? 1,
+        max: max ?? 5,
+        mid: mid ?? 1,
+        roomId: Number(roomId),
+      },
+    });
+
+    res.json({ vote });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la création du vote' });
+  }
+};
+
+export const getVotesByRoom = async (req: Request, res: Response) => {
+  try {
+    const token = req.cookies?.[tokenName];
+    if (!token) {
+      res.json({ notAuthentificate: true });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+
+    if (!userId) {
+      res.json({ invalidToken: true });
+      return;
+    }
+
+    const { roomId } = req.params;
+    if (!roomId || isNaN(Number(roomId))) {
+      res.json({ invalidRoomId: true });
+      return;
+    }
+
+    const votes = await prisma.vote.findMany({
+      where: { roomId: Number(roomId) },
+      include: { cards: true },
+    });
+
+    res.json({ votes });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
