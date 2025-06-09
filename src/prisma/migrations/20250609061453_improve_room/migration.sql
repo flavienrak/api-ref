@@ -63,7 +63,7 @@ CREATE TABLE "Card" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Room_name_key" ON "Room"("name");
+CREATE UNIQUE INDEX "Room_name_userId_key" ON "Room"("name", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserRoom_roomId_userId_key" ON "UserRoom"("roomId", "userId");

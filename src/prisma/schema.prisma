@@ -27,7 +27,7 @@ model User {
 
 model Room {
   id   Int    @id @default(autoincrement())
-  name String @unique
+  name String
 
   userId Int
 
@@ -37,6 +37,8 @@ model Room {
   users UserRoom[]
   votes Vote[]
   user  User       @relation("RoomCreator", fields: [userId], references: [id])
+
+  @@unique([name, userId])
 }
 
 model UserRoom {
