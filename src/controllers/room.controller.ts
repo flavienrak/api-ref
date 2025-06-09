@@ -6,7 +6,10 @@ import { getUserWithRooms } from '@/controllers/user.controller';
 const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
 
-export const room = async (req: Request, res: Response): Promise<void> => {
+export const createRoom = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { name }: { name: string } = req.body;
     const token = req.cookies?.[tokenName];
@@ -74,7 +77,7 @@ export const room = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getUserRoom = async (
+export const getUserRooms = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
@@ -98,6 +101,7 @@ export const getUserRoom = async (
         user: {
           select: {
             id: true,
+            name: true,
           },
         },
         room: {
@@ -110,15 +114,15 @@ export const getUserRoom = async (
               },
             },
             votes: { include: { cards: true } },
-            userRooms: {
-              include: {
-                user: {
-                  select: {
-                    name: true,
-                  },
-                },
-              },
-            },
+            // userRooms: {
+            //   include: {
+            //     user: {
+            //       select: {
+            //         name: true,
+            //       },
+            //     },
+            //   },
+            // },
           },
         },
       },
@@ -265,7 +269,7 @@ export const createVote = async (
   }
 };
 
-export const getVotesByRoom = async (req: Request, res: Response) => {
+export const getVotesById = async (req: Request, res: Response) => {
   try {
     const { id, voteId } = req.params;
     if (!id || isNaN(Number(id))) {

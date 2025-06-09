@@ -23,19 +23,6 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        userRooms: {
-          include: {
-            room: {
-              include: {
-                users: true,
-                votes: { include: { cards: true } },
-              },
-            },
-            user: true,
-          },
-        },
-      },
     });
 
     if (!user) {
@@ -43,7 +30,9 @@ export const getUserWithRooms = async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({ user });
+    const { password, ...userWithoutPassword } = user;
+
+    res.json({ user: userWithoutPassword });
   } catch (error) {
     res.status(500).json({ error });
   }

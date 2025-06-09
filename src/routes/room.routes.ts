@@ -5,22 +5,22 @@ import {
   deleteRoom,
   editVote,
   getRoomById,
-  getUserRoom,
-  getVotesByRoom,
-  room,
+  getUserRooms,
+  getVotesById,
+  createRoom,
 } from '@/controllers/room.controller';
 
 const router = Router();
 
 //room
-router.post('/', room);
-router.get('/', getUserRoom);
+router.post('/', createRoom);
+router.get('/', getUserRooms);
 router.get('/:id', getRoomById);
 router.delete('/:id', deleteRoom);
 
 //vote
 router.post('/:id', createVote);
-router.get('/:id/vote/:voteId', getVotesByRoom);
+router.get('/:id/vote/:voteId', getVotesById);
 router.put('/:voteId', editVote);
 
 //Card
