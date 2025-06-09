@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import { getUserWithRooms } from '@/controllers/user.controller';
 
 const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
@@ -67,34 +68,46 @@ export const room = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getRoomById = async (
+export const getUserRoom = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const token = req.cookies?.[tokenName];
 
-    if (isNaN(Number(id))) {
+    if (!token) {
+      res.json({ error: 'Non authentifié' });
+      return;
+    }
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+    if (!userId) {
+      res.json({ error: 'Token invalide' });
+      return;
+    }
+
+    if (!id || isNaN(Number(id))) {
       res.json({ invalidId: true });
       return;
     }
 
     const userRooms = await prisma.userRoom.findMany({
-      where: {
-        roomId: Number(id),
-      },
+      where: { userId },
       include: {
         user: true,
         room: {
           include: {
             user: true,
-            votes: true,
+            votes: { include: { cards: true } },
+            users: true,
           },
         },
       },
     });
+
     if (!userRooms) {
-      res.json({ roomNotFound: true });
+      res.json({ userRoomNotFound: true });
       return;
     }
 
@@ -103,6 +116,43 @@ export const getRoomById = async (
     res.status(500).json({ error });
   }
 };
+
+// export const getRoomById = async (
+//   req: Request,
+//   res: Response,
+// ): Promise<void> => {
+//   try {
+//     const { id } = req.params;
+
+//     if (isNaN(Number(id))) {
+//       res.json({ invalidId: true });
+//       return;
+//     }
+
+//     const userRooms = await prisma.userRoom.findMany({
+//       where: {
+//         roomId: Number(id),
+//       },
+//       include: {
+//         user: true,
+//         room: {
+//           include: {
+//             user: true,
+//             votes: true,
+//           },
+//         },
+//       },
+//     });
+//     if (!userRooms) {
+//       res.json({ roomNotFound: true });
+//       return;
+//     }
+
+//     res.json({ userRooms });
+//   } catch (error) {
+//     res.status(500).json({ error });
+//   }
+// };
 
 export const deleteRoom = async (
   req: Request,
