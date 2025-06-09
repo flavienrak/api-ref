@@ -249,3 +249,36 @@ export const getVotesByRoom = async (req: Request, res: Response) => {
     res.status(500).json({ error });
   }
 };
+
+export const editVote = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { voteId } = req.params;
+    const { content, min, max, mid } = req.body;
+
+    if (!voteId || isNaN(Number(voteId))) {
+      res.json({ invalidVoteId: true });
+      return;
+    }
+
+    const vote = await prisma.vote.findUnique({
+      where: { id: Number(voteId) },
+    });
+    if (!vote) {
+      res.json({ voteNotFound: true });
+      return;
+    }
+    const updatedVote = await prisma.vote.update({
+      where: { id: Number(voteId) },
+      data: {
+        content,
+        min,
+        max,
+        mid,
+      },
+    });
+
+    res.json({ vote: updatedVote });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la modification du vote' });
+  }
+};
