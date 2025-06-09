@@ -16,40 +16,34 @@ const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
 
 export const google = (req: Request, res: Response) => {
-  console.log('Google OAuth: redirecting to Google login');
   const url = client.generateAuthUrl({
     access_type: 'offline',
+    prompt: 'consent',
     scope: ['profile', 'email'],
   });
-  console.log('Generated Google Auth URL:', url);
+
   res.redirect(url);
 };
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
   const code = req.query.code as string;
-  console.log('Google OAuth callback called. Code:', code);
 
   if (!code) {
-    console.log('No authorization code provided');
     res.json({ error: 'Authorization code not provided.' });
     return;
   }
 
   try {
     const { tokens } = await client.getToken(code);
-    console.log('Tokens received from Google:', tokens);
 
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token!,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-    console.log('ID Token verified');
 
     const payload = ticket.getPayload();
-    console.log('Payload from Google:', payload);
 
     if (!payload || !payload.email) {
-      console.log('Invalid token payload');
       res.json({ error: 'Invalid token payload' });
       return;
     }
@@ -57,19 +51,14 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
     let user = await prisma.user.findUnique({
       where: { email: payload.email },
     });
-    console.log('User found in DB:', user);
 
     if (!user) {
-      console.log('User not found, creating new user');
-      user = await prisma.user.create({
-        data: {
-          email: payload.email,
-          name: payload.name || '',
-          password: 'password',
-          isVerified: false,
-        },
+      res.json({
+        userNotFound: true,
+        name: payload.name,
+        email: payload.email,
       });
-      console.log('New user created:', user);
+      return;
     }
 
     const token = jwt.sign(
@@ -77,7 +66,6 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       secretKey,
       { expiresIn: '7d' },
     );
-    console.log('JWT generated:', token);
 
     res.cookie(tokenName, token, {
       httpOnly: true,
@@ -85,11 +73,9 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       sameSite: 'none' as const,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    console.log('Cookie set, redirecting to /');
 
     res.redirect('/');
   } catch (error) {
-    console.error('Google OAuth error:', error);
     res.status(500).json({ error: 'Authentication failed.' });
   }
 };
