@@ -347,7 +347,7 @@ export const chooseCard = async (
     const userId = Number(decoded.infos.id);
 
     const { id, voteId } = req.params;
-    const { value } :{value: number | string} = req.body;
+    const { value }: { value: number | string } = req.body;
 
     if (!voteId || isNaN(Number(voteId)) || !value) {
       res.json({ error: 'Paramètres manquants' });
@@ -364,13 +364,21 @@ export const chooseCard = async (
     });
 
     if (existingCard) {
-      res.json({ alreadyChoosed: true });
+      const updatedCard = await prisma.card.update({
+        where: {
+          userId_voteId: {
+            userId,
+            voteId: Number(voteId),
+          },
+        },
+        data: { value: value.toString() },
+      });
+      res.json({ card: updatedCard });
       return;
     }
-
     const card = await prisma.card.create({
       data: {
-        value :value.toString(),
+        value: value.toString(),
         userId,
         voteId: Number(voteId),
       },
