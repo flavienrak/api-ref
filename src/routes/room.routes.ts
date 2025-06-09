@@ -10,9 +10,10 @@ import {
 const router = Router();
 
 router.post('/', room);
-router.post('/:roomId', createVote);
 router.get('/:id', getRoomById);
-router.get('/votes/:roomId', getVotesByRoom);
 router.delete('/:id', deleteRoom);
+
+router.post('/:id', createVote);
+router.get('/:id/vote', getVotesByRoom);
 
 export default router;

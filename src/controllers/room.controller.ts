@@ -145,7 +145,7 @@ export const createVote = async (
 ): Promise<void> => {
   try {
     const { content, min, max, mid } = req.body;
-    const { roomId } = req.params;
+    const { id } = req.params;
     const token = req.cookies?.[tokenName];
 
     if (!token) {
@@ -160,7 +160,7 @@ export const createVote = async (
       return;
     }
 
-    if (!content || !roomId) {
+    if (!content || !id) {
       res.json({ error: 'Champs requis manquants' });
       return;
     }
@@ -171,7 +171,7 @@ export const createVote = async (
         min: min ?? 1,
         max: max ?? 5,
         mid: mid ?? 1,
-        roomId: Number(roomId),
+        roomId: Number(id),
       },
     });
 
@@ -197,14 +197,14 @@ export const getVotesByRoom = async (req: Request, res: Response) => {
       return;
     }
 
-    const { roomId } = req.params;
-    if (!roomId || isNaN(Number(roomId))) {
+    const { id } = req.params;
+    if (!id || isNaN(Number(id))) {
       res.json({ invalidRoomId: true });
       return;
     }
 
     const votes = await prisma.vote.findMany({
-      where: { roomId: Number(roomId) },
+      where: { roomId: Number(id) },
       include: { cards: true },
     });
 
