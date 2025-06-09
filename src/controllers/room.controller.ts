@@ -346,7 +346,7 @@ export const chooseCard = async (
     const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
     const userId = Number(decoded.infos.id);
 
-    const { voteId } = req.params;
+    const { id, voteId } = req.params;
     const { value } = req.body;
 
     if (!voteId || isNaN(Number(voteId)) || !value) {
