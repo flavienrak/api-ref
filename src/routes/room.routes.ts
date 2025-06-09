@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createVote,
   deleteRoom,
+  getRoomById,
   getUserRoom,
   getVotesByRoom,
   room,
@@ -12,6 +13,7 @@ const router = Router();
 //room
 router.post('/', room);
 router.get('/', getUserRoom);
+router.get('/:id', getRoomById);
 router.delete('/:id', deleteRoom);
 
 //vote
