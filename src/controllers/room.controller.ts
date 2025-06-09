@@ -123,17 +123,20 @@ export const getRoomById = async (
       return;
     }
 
-    const rooms = await prisma.room.findUnique({
-      where: {
-        id: Number(id),
+    const room = await prisma.room.findUnique({
+      where: { id: Number(id) },
+      include: {
+        user: true,
+        votes: { include: { cards: true } },
+        users: true,
       },
     });
-    if (!rooms) {
+    if (!room) {
       res.json({ roomNotFound: true });
       return;
     }
 
-    res.json({ rooms });
+    res.json({ room });
   } catch (error) {
     res.status(500).json({ error });
   }
