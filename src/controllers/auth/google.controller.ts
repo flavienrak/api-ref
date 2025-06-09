@@ -21,7 +21,7 @@ export const google = (req: Request, res: Response) => {
     scope: ['profile', 'email'],
   });
 
-  res.redirect(url);
+  res.json(url);
 };
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
@@ -73,7 +73,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect('/');
+    res.json({ token });
   } catch (error) {
     res.status(500).json({ error: 'Authentication failed.' });
   }
