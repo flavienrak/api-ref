@@ -227,28 +227,14 @@ export const createVote = async (
 
 export const getVotesByRoom = async (req: Request, res: Response) => {
   try {
-    const token = req.cookies?.[tokenName];
-    if (!token) {
-      res.json({ notAuthentificate: true });
-      return;
-    }
-
-    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
-    const userId = Number(decoded.infos.id);
-
-    if (!userId) {
-      res.json({ invalidToken: true });
-      return;
-    }
-
-    const { id } = req.params;
+    const { id, voteId } = req.params;
     if (!id || isNaN(Number(id))) {
       res.json({ invalidRoomId: true });
       return;
     }
 
-    const votes = await prisma.vote.findMany({
-      where: { roomId: Number(id) },
+    const vote = await prisma.vote.findUnique({
+      where: { id: Number(voteId), roomId: Number(id) },
       include: {
         cards: {
           include: {
@@ -258,7 +244,7 @@ export const getVotesByRoom = async (req: Request, res: Response) => {
       },
     });
 
-    res.json({ votes });
+    res.json({ vote });
   } catch (error) {
     res.status(500).json({ error });
   }

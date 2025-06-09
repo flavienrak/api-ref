@@ -18,6 +18,6 @@ router.delete('/:id', deleteRoom);
 
 //vote
 router.post('/:id', createVote);
-router.get('/:id/vote', getVotesByRoom);
+router.get('/:id/vote/:voteId', getVotesByRoom);
 
 export default router;
