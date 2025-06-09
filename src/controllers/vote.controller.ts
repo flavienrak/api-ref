@@ -21,6 +21,10 @@ export const createVote = async (
 
     const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
     const userId = Number(decoded.infos.id);
+    if (!userId) {
+      res.json({ error: 'Token invalide' });
+      return;
+    }
 
     if (!content || !roomId) {
       res.json({ error: 'Champs requis manquants' });
