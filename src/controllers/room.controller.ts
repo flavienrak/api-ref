@@ -92,8 +92,6 @@ export const getUserRoom = async (
         user: {
           select: {
             id: true,
-            name: true,
-            role: true,
           },
         },
         room: {
@@ -110,9 +108,7 @@ export const getUserRoom = async (
               include: {
                 user: {
                   select: {
-                    id: true,
                     name: true,
-                    role: true,
                   },
                 },
               },
