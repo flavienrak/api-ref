@@ -104,6 +104,15 @@ export const deleteRoom = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const token = req.cookies?.[tokenName];
+
+    if (!token) {
+      res.json({ error: 'Non authentifié' });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
 
     if (isNaN(Number(id))) {
       res.json({ invalidId: true });
@@ -111,12 +120,18 @@ export const deleteRoom = async (
     }
 
     const room = await prisma.room.findUnique({ where: { id: Number(id) } });
+
     if (!room) {
       res.json({ roomNotFound: true });
       return;
     }
 
-    await prisma.room.delete({ where: { id: Number(id) } });
+    if (room.userId !== userId) {
+      res.json({ notAuthorized: true });
+      return;
+    }
+
+    await prisma.room.delete({ where: { id: room.id } });
 
     res.json({ deleted: true });
   } catch (error) {
