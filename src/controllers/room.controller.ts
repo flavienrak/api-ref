@@ -111,42 +111,33 @@ export const getUserRoom = async (
   }
 };
 
-// export const getRoomById = async (
-//   req: Request,
-//   res: Response,
-// ): Promise<void> => {
-//   try {
-//     const { id } = req.params;
+export const getRoomById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
 
-//     if (isNaN(Number(id))) {
-//       res.json({ invalidId: true });
-//       return;
-//     }
+    if (isNaN(Number(id))) {
+      res.json({ invalidId: true });
+      return;
+    }
 
-//     const userRooms = await prisma.userRoom.findMany({
-//       where: {
-//         roomId: Number(id),
-//       },
-//       include: {
-//         user: true,
-//         room: {
-//           include: {
-//             user: true,
-//             votes: true,
-//           },
-//         },
-//       },
-//     });
-//     if (!userRooms) {
-//       res.json({ roomNotFound: true });
-//       return;
-//     }
+    const Rooms = await prisma.room.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+    if (!Rooms) {
+      res.json({ roomNotFound: true });
+      return;
+    }
 
-//     res.json({ userRooms });
-//   } catch (error) {
-//     res.status(500).json({ error });
-//   }
-// };
+    res.json({ Rooms });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
 
 export const deleteRoom = async (
   req: Request,
