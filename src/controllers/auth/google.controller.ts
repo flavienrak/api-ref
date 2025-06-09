@@ -18,7 +18,6 @@ const tokenName = process.env.AUTH_TOKEN_NAME as string;
 export const google = (req: Request, res: Response) => {
   const url = client.generateAuthUrl({
     access_type: 'offline',
-    prompt: 'consent',
     scope: ['profile', 'email'],
   });
 
