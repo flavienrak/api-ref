@@ -347,7 +347,7 @@ export const chooseCard = async (
     const userId = Number(decoded.infos.id);
 
     const { id, voteId } = req.params;
-    const { value } = req.body;
+    const { value } :{value: number | string} = req.body;
 
     if (!voteId || isNaN(Number(voteId)) || !value) {
       res.json({ error: 'Paramètres manquants' });
@@ -370,7 +370,7 @@ export const chooseCard = async (
 
     const card = await prisma.card.create({
       data: {
-        value,
+        value :value.toString(),
         userId,
         voteId: Number(voteId),
       },
