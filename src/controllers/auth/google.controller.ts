@@ -67,12 +67,12 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
 
     // res.cookie(tokenName, token, {
     //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'lax',
-    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    //   secure: true,
+    //   sameSite: 'none' as const,,
+    //   maxAge: 7 * 24 * 60 * 60 * 1000,
     // });
 
-    res.redirect(process.env.FRONTEND_URL || '/');
+    res.redirect('/');
   } catch (error) {
     console.error('Google OAuth error:', error);
     res.status(500).json({ error: 'Authentication failed.' });

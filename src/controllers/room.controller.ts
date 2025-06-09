@@ -249,7 +249,13 @@ export const getVotesByRoom = async (req: Request, res: Response) => {
 
     const votes = await prisma.vote.findMany({
       where: { roomId: Number(id) },
-      include: { cards: true },
+      include: {
+        cards: {
+          include: {
+            user: true,
+          },
+        },
+      },
     });
 
     res.json({ votes });
