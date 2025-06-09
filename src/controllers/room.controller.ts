@@ -114,15 +114,15 @@ export const getUserRooms = async (
               },
             },
             votes: { include: { cards: true } },
-            // userRooms: {
-            //   include: {
-            //     user: {
-            //       select: {
-            //         name: true,
-            //       },
-            //     },
-            //   },
-            // },
+            userRooms: {
+              include: {
+                user: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
