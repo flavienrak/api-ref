@@ -11,6 +11,7 @@ import googleRoutes from './routes/google.routes';
 import mailRoutes from './routes/mail/mail.routes';
 import userRoutes from './routes/user.routes';
 import roomRoutes from './routes/room.routes';
+import voteRoutes from './routes/vote.routes';
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use(
@@ -29,6 +30,7 @@ app.use('/api/google', googleRoutes);
 app.use('/api/mail', mailRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/room', roomRoutes);
+app.use('/api/vote', voteRoutes);
 const port = process.env.BACKEND_PORT;
 if (!port) {
   logger.error('ENV NOT FOUND');
