@@ -46,37 +46,32 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 🔍 Vérifie si l'utilisateur existe dans ta base
     let user = await prisma.user.findUnique({
       where: { email: payload.email },
     });
 
-    // 🆕 Sinon, crée-le
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: payload.email,
-          name: payload.name || '',
-        },
-      });
-    }
+    // if (!user) {
+    //   user = await prisma.user.create({
+    //     data: {
+    //       email: payload.email,
+    //       name: payload.name || '',
+    //     },
+    //   });
+    // }
 
-    // 🔐 Crée le JWT
-    const token = jwt.sign(
-      { infos: { id: user.id, email: user.email } },
-      secretKey,
-      { expiresIn: '7d' },
-    );
+    // const token = jwt.sign(
+    //   { infos: { id: user.id, email: user.email } },
+    //   secretKey,
+    //   { expiresIn: '7d' },
+    // );
 
-    // 🍪 Envoie le JWT dans un cookie
-    res.cookie(tokenName, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-    });
+    // res.cookie(tokenName, token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'lax',
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    // });
 
-    // 🔁 Redirige vers le frontend ou réponds simplement
     res.redirect(process.env.FRONTEND_URL || '/');
   } catch (error) {
     console.error('Google OAuth error:', error);
