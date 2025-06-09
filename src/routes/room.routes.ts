@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  chooseCard,
   createVote,
   deleteRoom,
   editVote,
@@ -22,4 +23,6 @@ router.post('/:id', createVote);
 router.get('/:id/vote/:voteId', getVotesByRoom);
 router.put('/:voteId', editVote);
 
+//Card
+router.post('/:voteId/card', chooseCard);
 export default router;

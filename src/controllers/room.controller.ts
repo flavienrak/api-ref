@@ -89,10 +89,22 @@ export const getUserRoom = async (
     const userRooms = await prisma.userRoom.findMany({
       where: { userId },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+          },
+        },
         room: {
           include: {
-            user: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                role: true,
+              },
+            },
             votes: { include: { cards: true } },
             users: true,
           },
@@ -126,7 +138,13 @@ export const getRoomById = async (
     const room = await prisma.room.findUnique({
       where: { id: Number(id) },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+          },
+        },
         votes: { include: { cards: true } },
         users: true,
       },
@@ -238,7 +256,13 @@ export const getVotesByRoom = async (req: Request, res: Response) => {
       include: {
         cards: {
           include: {
-            user: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                role: true,
+              },
+            },
           },
         },
       },
@@ -280,5 +304,54 @@ export const editVote = async (req: Request, res: Response): Promise<void> => {
     res.json({ vote: updatedVote });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la modification du vote' });
+  }
+};
+
+export const chooseCard = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const token = req.cookies?.[tokenName];
+    if (!token) {
+      res.json({ error: 'Non authentifié' });
+      return;
+    }
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+
+    const { voteId } = req.params;
+    const { value } = req.body;
+
+    if (!voteId || isNaN(Number(voteId)) || !value) {
+      res.json({ error: 'Paramètres manquants' });
+      return;
+    }
+
+    const existingCard = await prisma.card.findUnique({
+      where: {
+        userId_voteId: {
+          userId,
+          voteId: Number(voteId),
+        },
+      },
+    });
+
+    if (existingCard) {
+      res.json({ alreadyChoosed: true });
+      return;
+    }
+
+    const card = await prisma.card.create({
+      data: {
+        value,
+        userId,
+        voteId: Number(voteId),
+      },
+    });
+
+    res.json({ card });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors du choix de la carte' });
   }
 };
