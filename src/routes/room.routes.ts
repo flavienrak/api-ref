@@ -24,5 +24,5 @@ router.get('/:id/vote/:voteId', getVotesById);
 router.put('/:voteId', editVote);
 
 //Card
-router.post('/:voteId/card', chooseCard);
+router.post('/:id/vote/:voteId/card', chooseCard);
 export default router;
