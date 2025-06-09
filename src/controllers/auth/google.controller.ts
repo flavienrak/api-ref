@@ -15,13 +15,19 @@ const client = new OAuth2Client(
 const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
 
-export const google = (req: Request, res: Response) => {
-  const url = client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['profile', 'email'],
-  });
-
-  res.json(url);
+export const google = async (req: Request, res: Response) => {
+  try {
+    const url = await client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['profile', 'email'],
+    });
+    res.status(200).json({ url });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: 'Erreur lors de la génération de l’URL Google OAuth' });
+  }
 };
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
@@ -73,7 +79,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ error: 'Authentication failed.' });
   }
