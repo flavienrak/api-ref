@@ -365,12 +365,7 @@ export const chooseCard = async (
 
     if (existingCard) {
       const updatedCard = await prisma.card.update({
-        where: {
-          userId_voteId: {
-            userId,
-            voteId: Number(voteId),
-          },
-        },
+        where: { id: existingCard.id },
         data: { value: value.toString() },
       });
       res.json({ card: updatedCard });
