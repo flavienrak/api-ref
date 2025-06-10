@@ -25,6 +25,7 @@ export const google = (req: Request, res: Response): void => {
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
   const code = req.query.code as string;
+  console.log('Authorization code:', code);
 
   if (!code) {
     res.json({ error: 'Authorization code not provided.' });
@@ -32,7 +33,9 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const { tokens } = await client.getToken(code);
+    const { tokens } = await client.getToken({
+      code,
+    });
 
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token!,
@@ -51,12 +54,26 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
+      const token = jwt.sign(
+        {
+          infos: {
+            email: payload.email,
+            name: payload.name,
+            profil: payload.picture,
+          },
+        },
+        secretKey,
+        { expiresIn: '7d' },
+      );
       res.json({
         userNotFound: true,
         name: payload.name,
         email: payload.email,
+        profil: payload.picture,
       });
-      return;
+
+      const redirectUrl = `${process.env.FRONTEND_URL}?google=${token}`;
+      return res.redirect(redirectUrl);
     }
 
     const token = jwt.sign(
@@ -72,8 +89,25 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect('/');
+    res.redirect('/home');
   } catch (error) {
+    console.error('Callback error:', error);
     res.status(500).json({ error: 'Authentication failed.' });
+  }
+};
+
+export const verifyToken = (req: Request, res: Response): void => {
+  const token = req.cookies?.[tokenName];
+
+  if (!token) {
+    res.json({ TokenNotFound: true });
+    return;
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    res.status(200).json({ user: decoded });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
