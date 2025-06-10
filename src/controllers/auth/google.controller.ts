@@ -26,10 +26,17 @@ export const google = (req: Request, res: Response): void => {
 export const callback = async (req: Request, res: Response): Promise<void> => {
   const code = req.query.code as string;
 
+  if (!code) {
+    res.json({ error: 'Authorization code not provided.' });
+    return;
+  }
+  console.log(code);
+
   try {
     const { tokens } = await client.getToken({
       code,
     });
+    client.setCredentials(tokens);
 
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token!,
@@ -38,7 +45,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
 
     const payload = ticket.getPayload();
 
-    if (!payload || !payload.email) {
+    if (!payload) {
       res.json({ error: 'Invalid token payload' });
       return;
     }
