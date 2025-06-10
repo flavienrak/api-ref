@@ -49,7 +49,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: true,
       sameSite: 'none' as const,
-      maxAge: maxAgeAuthToken * 1000,
+      maxAge: maxAgeAuthToken ,
     };
 
     res.cookie(authTokenName, token, cookieOptions);
@@ -143,7 +143,7 @@ const logout = async (req: Request, res: Response) => {
   res.status(200).json({ loggedOut: true });
 };
 
-const newRegister = async (req: Request, res: Response): Promise<void> => {
+const tokenRegister = async (req: Request, res: Response): Promise<void> => {
   try {
     const { token } = req.params;
     const { password }: { password: string } = req.body;
@@ -193,7 +193,7 @@ const newRegister = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: true,
       sameSite: 'none' as const,
-      maxAge: maxAgeAuthToken * 1000,
+      maxAge: maxAgeAuthToken ,
     };
 
     res.cookie(authTokenName, authToken, cookieOptions);
@@ -208,4 +208,4 @@ const newRegister = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
-export { login, register, logout, newRegister };
+export { login, register, logout, tokenRegister };

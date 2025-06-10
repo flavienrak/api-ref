@@ -7,7 +7,7 @@ import {
 import {
   login,
   logout,
-  newRegister,
+  tokenRegister,
   register,
 } from '@/controllers/auth/auth.controller';
 import { checkConnectionStatus } from '@/controllers/auth/isConnected.controller';
@@ -18,7 +18,7 @@ const router = express.Router();
 router.post('/login', loginValidation, login);
 router.get('/status', authenticateUser, checkConnectionStatus);
 router.post('/register', registerValidation, register);
-router.post('/newRegister', newRegister);
+router.post('/token-register', tokenRegister);
 router.get('/logout', logout);
 
 export default router;
