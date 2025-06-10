@@ -25,12 +25,6 @@ export const google = (req: Request, res: Response): void => {
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
   const code = req.query.code as string;
-  console.log('Authorization code:', code);
-
-  if (!code) {
-    res.json({ error: 'Authorization code not provided.' });
-    return;
-  }
 
   try {
     const { tokens } = await client.getToken({
@@ -59,7 +53,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
           infos: {
             email: payload.email,
             name: payload.name,
-            profil: payload.picture,
+            profile: payload.picture,
           },
         },
         secretKey,
@@ -69,10 +63,10 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
         userNotFound: true,
         name: payload.name,
         email: payload.email,
-        profil: payload.picture,
+        profile: payload.picture,
       });
 
-      const redirectUrl = `${process.env.FRONTEND_URL}?google=${token}`;
+      const redirectUrl = `${process.env.FRONTEND_URL}?googleAuth=${token}`;
       return res.redirect(redirectUrl);
     }
 
@@ -89,7 +83,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect('/home');
+    res.redirect(`${process.env.FRONTEND_URL}/room`);
   } catch (error) {
     console.error('Callback error:', error);
     res.status(500).json({ error: 'Authentication failed.' });
