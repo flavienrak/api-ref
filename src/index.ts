@@ -25,7 +25,7 @@ app.use(
 app.get('/', (req: Request, res: Response) => {
   res.send('Backend running successfully!');
 });
-app.get('/api/token', tokenRoutes);
+app.use('/api/token', tokenRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/google', googleRoutes);
 app.use('/api/mail', mailRoutes);
