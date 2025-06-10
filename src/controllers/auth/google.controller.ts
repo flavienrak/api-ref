@@ -3,6 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/db';
+import { maxAgeAuthToken } from '@/utils/constants';
 
 dotenv.config();
 
@@ -35,9 +36,8 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
   console.log('code:', code);
 
   try {
-    const { tokens } = await client.getToken({
-      code,
-    });
+    const { tokens } = await client.getToken(code);
+    console.log(tokens);
     client.setCredentials(tokens);
 
     const ticket = await client.verifyIdToken({
@@ -89,7 +89,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: true,
       sameSite: 'none' as const,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: maxAgeAuthToken,
     });
 
     res.redirect(`${frontendUri}/room`);
