@@ -66,7 +66,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
         profile: payload.picture,
       });
 
-      const redirectUrl = `${process.env.FRONTEND_URL}?googleAuth=${token}`;
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth/${token}`;
       return res.redirect(redirectUrl);
     }
 
@@ -87,21 +87,5 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Callback error:', error);
     res.status(500).json({ error: 'Authentication failed.' });
-  }
-};
-
-export const verifyToken = (req: Request, res: Response): void => {
-  const token = req.cookies?.[tokenName];
-
-  if (!token) {
-    res.json({ TokenNotFound: true });
-    return;
-  }
-
-  try {
-    const decoded = jwt.verify(token, secretKey);
-    res.status(200).json({ user: decoded });
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired token' });
   }
 };

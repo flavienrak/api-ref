@@ -11,6 +11,7 @@ import googleRoutes from './routes/google.routes';
 import mailRoutes from './routes/mail/mail.routes';
 import userRoutes from './routes/user.routes';
 import roomRoutes from './routes/room.routes';
+import { verifyToken } from './controllers/mail/token.controller';
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use(
@@ -24,6 +25,7 @@ app.use(
 app.get('/', (req: Request, res: Response) => {
   res.send('Backend running successfully!');
 });
+app.get('/:token', verifyToken);
 app.use('/api/auth', authRoutes);
 app.use('/api/google', googleRoutes);
 app.use('/api/mail', mailRoutes);
