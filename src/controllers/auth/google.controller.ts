@@ -14,6 +14,7 @@ const client = new OAuth2Client(
 
 const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
+const frontendUri = process.env.FRONTEND_URI as string;
 
 export const google = (req: Request, res: Response): void => {
   const url = client.generateAuthUrl({
@@ -24,13 +25,14 @@ export const google = (req: Request, res: Response): void => {
 };
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
+  console.log('callback');
   const code = req.query.code as string;
 
   if (!code) {
     res.json({ error: 'Authorization code not provided.' });
     return;
   }
-  console.log(code);
+  console.log('code:', code);
 
   try {
     const { tokens } = await client.getToken({
@@ -73,7 +75,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
         profile: payload.picture,
       });
 
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth/${token}`;
+      const redirectUrl = `${frontendUri}/auth/${token}`;
       return res.redirect(redirectUrl);
     }
 
@@ -90,7 +92,7 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect(`${process.env.FRONTEND_URL}/room`);
+    res.redirect(`${frontendUri}/room`);
   } catch (error) {
     console.error('Callback error:', error);
     res.status(500).json({ error: 'Authentication failed.' });
