@@ -147,7 +147,18 @@ export const getRoomById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const token = req.cookies?.[tokenName];
 
+    if (!token) {
+      res.json({ NotAuthentificate: true });
+      return;
+    }
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+    if (!userId) {
+      res.json({ invalidToken: true });
+      return;
+    }
     if (isNaN(Number(id))) {
       res.json({ invalidId: true });
       return;
@@ -179,12 +190,27 @@ export const getRoomById = async (
         },
       },
     });
+
     if (!room) {
       res.json({ roomNotFound: true });
       return;
     }
 
-    res.json({ room });
+    const userRoom = await prisma.userRoom.findUnique({
+      where: {
+        roomId_userId: {
+          roomId: Number(id),
+          userId: userId,
+        },
+      },
+    });
+
+    if (!userRoom) {
+      res.json({ userNotInRoom: true });
+      return;
+    }
+
+    res.json({ room, userRoom });
   } catch (error) {
     res.status(500).json({ error });
   }
