@@ -396,7 +396,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
     const token = req.cookies?.[tokenName];
 
     if (!id) {
-      res.json({ error: 'roomId requis dans les paramètres' });
+      res.json({ roomIdNotFound: true });
       return;
     }
 
@@ -408,7 +408,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
     const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
     const userId = Number(decoded.infos.id);
     if (!userId) {
-      res.json({ error: 'Token invalide' });
+      res.json({ invalidToken: true });
       return;
     }
 
@@ -417,7 +417,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!room) {
-      res.json({ error: 'Room non trouvée' });
+      res.json({ roomNotFound: true });
       return;
     }
 
@@ -465,10 +465,10 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    res.json({ userRoom: joinedUserRoom });
+    res.status(200).json({ userRoom: joinedUserRoom });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: 'Erreur lors de la tentative de rejoindre la room' });
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };
