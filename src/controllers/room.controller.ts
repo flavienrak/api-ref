@@ -389,3 +389,86 @@ export const chooseCard = async (
     res.status(500).json({ error: 'Erreur lors du choix de la carte' });
   }
 };
+
+export const joinRoom = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const token = req.cookies?.[tokenName];
+
+    if (!id) {
+      res.json({ error: 'roomId requis dans les paramètres' });
+      return;
+    }
+
+    if (!token) {
+      res.json({ NotAuthentificate: true });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+    if (!userId) {
+      res.json({ error: 'Token invalide' });
+      return;
+    }
+
+    const room = await prisma.room.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!room) {
+      res.json({ error: 'Room non trouvée' });
+      return;
+    }
+
+    const existingUserRoom = await prisma.userRoom.findUnique({
+      where: {
+        roomId_userId: {
+          userId,
+          roomId: Number(id),
+        },
+      },
+    });
+
+    if (existingUserRoom) {
+      res.json({
+        message: 'Déjà membre de la room',
+        userRoom: existingUserRoom,
+      });
+      return;
+    }
+
+    const userRoom = await prisma.userRoom.create({
+      data: {
+        userId,
+        roomId: Number(id),
+      },
+    });
+
+    const joinedUserRoom = await prisma.userRoom.findUnique({
+      where: { id: userRoom.id },
+      include: {
+        room: {
+          include: {
+            userRooms: true,
+            votes: { include: { cards: true } },
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            role: true,
+            profile: true,
+          },
+        },
+      },
+    });
+
+    res.json({ userRoom: joinedUserRoom });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: 'Erreur lors de la tentative de rejoindre la room' });
+  }
+};

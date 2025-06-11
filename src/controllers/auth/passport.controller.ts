@@ -38,15 +38,16 @@ passport.use(
                 email,
                 name,
                 profile: picture,
+                userNotFound: true,
               },
             },
             secretKey,
             { expiresIn: '7d' },
           );
-          return done(null, { profile, token });
+          return done(null, { profile, token, userNotFound: true });
         }
 
-        const userPayload = { id: user.id, email: user.email };
+        const userPayload = { id: user.id, authToken: true };
         const token = jwt.sign({ infos: userPayload }, secretKey, {
           expiresIn: '7d',
         });

@@ -11,7 +11,6 @@ router.get(
   '/',
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    prompt: 'consent',
   }),
 );
 
@@ -20,16 +19,20 @@ router.get(
   passport.authenticate('google', { session: false }),
   (req: Request, res: Response) => {
     const userData = req.user as any;
-    const { token } = userData;
+    const { token, userNotFound } = userData;
 
-    res.cookie(tokenName, token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: maxAgeAuthToken,
-    });
+    if (userNotFound) {
+      res.redirect(`${frontendUri}/auth/${token}`);
+    } else {
+      res.cookie(tokenName, token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: maxAgeAuthToken,
+      });
 
-    res.redirect(`${frontendUri}/room`);
+      res.redirect(`${frontendUri}/room`);
+    }
   },
 );
 
