@@ -54,12 +54,12 @@ export const oAuth = async (req: Request, res: Response): Promise<void> => {
       where: { email },
     });
 
-    if (!user) {
-      res.json({ userNotFound: true });
+    if (user) {
+      res.json({ id: user.id });
       return;
     }
 
-    res.json({ id: user.id });
+    res.status(200).json({ valid: true });
   } catch (error) {
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Unknown error',
