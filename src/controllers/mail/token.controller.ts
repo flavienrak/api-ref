@@ -24,7 +24,7 @@ export const verifyToken = (req: Request, res: Response): void => {
   }
 };
 
-export const Oauth = async (req: Request, res: Response): Promise<void> => {
+export const oAuth = async (req: Request, res: Response): Promise<void> => {
   try {
     const token = req.params.token;
 
