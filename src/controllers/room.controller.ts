@@ -164,6 +164,33 @@ export const getRoomById = async (
       return;
     }
 
+    const existRoom = await prisma.room.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!existRoom) {
+      res.json({ roomNotFound: true });
+      return;
+    }
+
+    const userRoom = await prisma.userRoom.findUnique({
+      where: {
+        roomId_userId: {
+          roomId: existRoom.id,
+          userId: userId,
+        },
+      },
+    });
+
+    if (!userRoom) {
+      await prisma.userRoom.create({
+        data: {
+          userId,
+          roomId: Number(id),
+        },
+      });
+    }
+
     const room = await prisma.room.findUnique({
       where: { id: Number(id) },
       include: {
@@ -191,26 +218,7 @@ export const getRoomById = async (
       },
     });
 
-    if (!room) {
-      res.json({ roomNotFound: true });
-      return;
-    }
-
-    const userRoom = await prisma.userRoom.findUnique({
-      where: {
-        roomId_userId: {
-          roomId: Number(id),
-          userId: userId,
-        },
-      },
-    });
-
-    if (!userRoom) {
-      res.json({ userNotInRoom: true });
-      return;
-    }
-
-    res.json({ room, userRoom });
+    res.status(200).json({ room });
   } catch (error) {
     res.status(500).json({ error });
   }
