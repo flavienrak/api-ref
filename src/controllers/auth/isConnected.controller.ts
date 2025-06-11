@@ -19,8 +19,15 @@ export const checkConnectionStatus = async (
   try {
     const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
 
+    const userId = decoded.infos.id;
+
+    if (!userId || isNaN(Number(userId))) {
+      res.json({ invalidId: true });
+      return;
+    }
+
     const user = await prisma.user.findUnique({
-      where: { id: Number(decoded.infos.id) },
+      where: { id: Number(userId) },
     });
 
     if (!user) {
