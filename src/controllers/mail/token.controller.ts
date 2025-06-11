@@ -24,30 +24,29 @@ export const verifyToken = (req: Request, res: Response): void => {
   }
 };
 
-export const verifyGoogleAuth = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const Oauth = async (req: Request, res: Response): Promise<void> => {
   try {
-    const token = req.body.token;
+    const token = req.params.token;
 
     if (!token) {
-      res.json({ error: 'token manquant' });
+      res.json({ noToken: true });
       return;
     }
 
     let decoded: any;
     try {
-      decoded = jwt.verify(token, secretKey) as { infos: { email: string } };
+      decoded = jwt.verify(token, secretKey) as {
+        infos: { email: string; name: string; profile: string };
+      };
     } catch (error) {
-      res.json({ error: 'token pas valide' });
+      res.json({ tokenInvalid: true });
       return;
     }
 
     const email = decoded.infos.email;
 
     if (!email) {
-      res.json({ error: 'email manquant dans le token' });
+      res.json({ emailNotFound: true });
       return;
     }
 
@@ -62,6 +61,8 @@ export const verifyGoogleAuth = async (
 
     res.json({ id: user.id });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur interne du serveur' });
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };
