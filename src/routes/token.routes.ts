@@ -1,4 +1,4 @@
-import { oAuth, verifyToken } from '@/controllers/mail/token.controller';
+import { oAuth, verifyToken } from '@/controllers/token.controller';
 import express from 'express';
 const router = express.Router();
 
