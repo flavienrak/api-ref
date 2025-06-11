@@ -307,7 +307,7 @@ export const createVote = async (
   }
 };
 
-export const getVotesById = async (req: Request, res: Response) => {
+export const getVoteById = async (req: Request, res: Response) => {
   try {
     const { id, voteId } = req.params;
     if (!id || isNaN(Number(id))) {
@@ -371,22 +371,21 @@ export const editVote = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: 'Erreur lors de la modification du vote' });
   }
 };
-
 export const deleteVote = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const voteId = Number(id);
 
-    if (isNaN(Number(id))) {
+    if (isNaN(voteId)) {
       res.json({ invalidId: true });
       return;
     }
 
     const voteToDelete = await prisma.vote.findUnique({
-      where: { id: Number(id) },
-      include: { room: true },
+      where: { id: voteId },
     });
 
     if (!voteToDelete) {
@@ -394,13 +393,22 @@ export const deleteVote = async (
       return;
     }
 
-    await prisma.vote.delete({
-      where: { id: Number(id) },
+    const room = await prisma.room.findUnique({
+      where: { id: voteToDelete.roomId },
     });
 
-    res.json({
+    if (!room) {
+      res.json({ roomNotFound: true });
+      return;
+    }
+
+    await prisma.vote.delete({
+      where: { id: voteId },
+    });
+
+    res.status(200).json({
       vote: voteToDelete,
-      room: voteToDelete.room,
+      room: room,
     });
   } catch (error) {
     res.status(500).json({ error });

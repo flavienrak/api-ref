@@ -6,7 +6,7 @@ import {
   editVote,
   getRoomById,
   getUserRooms,
-  getVotesById,
+  getVoteById,
   createRoom,
   joinRoom,
   deleteVote,
@@ -23,9 +23,9 @@ router.delete('/:id', deleteRoom);
 
 //vote
 router.post('/:id', createVote);
-router.get('/:id/vote/:voteId', getVotesById);
+router.get('/:id/vote/:voteId', getVoteById);
 router.put('/:voteId', editVote);
-router.delete('/:id', deleteVote);
+router.delete('/:id/vote/:voteId', deleteVote);
 
 //Card
 router.post('/:id/vote/:voteId/card', chooseCard);
