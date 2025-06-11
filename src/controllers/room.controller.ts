@@ -372,6 +372,41 @@ export const editVote = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const deleteVote = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (isNaN(Number(id))) {
+      res.json({ invalidId: true });
+      return;
+    }
+
+    const voteToDelete = await prisma.vote.findUnique({
+      where: { id: Number(id) },
+      include: { room: true },
+    });
+
+    if (!voteToDelete) {
+      res.json({ voteNotFound: true });
+      return;
+    }
+
+    await prisma.vote.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({
+      vote: voteToDelete,
+      room: voteToDelete.room,
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
 export const chooseCard = async (
   req: Request,
   res: Response,
