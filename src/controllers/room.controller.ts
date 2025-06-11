@@ -432,8 +432,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
 
     if (existingUserRoom) {
       res.json({
-        message: 'Déjà membre de la room',
-        userRoom: existingUserRoom,
+        roomAlreadyExist: true,
       });
       return;
     }
