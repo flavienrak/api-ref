@@ -260,7 +260,7 @@ export const deleteRoom = async (
 
     await prisma.room.delete({ where: { id: room.id } });
 
-    io.to(`room-${room.id}`).emit('roomDeleted', room);
+    io.to(`room-${room.id}`).emit('roomDeleted', { room });
 
     res.json({ room });
   } catch (error) {
@@ -304,7 +304,7 @@ export const createVote = async (
       },
     });
 
-    io.to(`room-${vote.roomId}`).emit('createVote', vote);
+    io.to(`room-${vote.roomId}`).emit('createVote', { vote });
     res.json({ vote });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création du vote' });
@@ -400,9 +400,7 @@ export const deleteVote = async (
       where: { id: Number(voteId) },
     });
 
-    io.to(`room-${vote.roomId}`).emit('deleteVote', {
-      vote,
-    });
+    io.to(`room-${vote.roomId}`).emit('deleteVote', { vote });
 
     res.status(200).json({ vote });
   } catch (error) {
@@ -543,7 +541,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    io.to(`room-${room.id}`).emit('joinedUserRoom', joinedUserRoom);
+    io.to(`room-${room.id}`).emit('joinedUserRoom', { joinedUserRoom });
 
     res.status(200).json({ userRoom: joinedUserRoom });
   } catch (error) {
