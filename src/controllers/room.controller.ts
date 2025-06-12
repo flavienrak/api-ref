@@ -341,17 +341,21 @@ export const createVote = async (
 export const getVoteById = async (req: Request, res: Response) => {
   try {
     const token = req.cookies?.[tokenName];
+
     if (!token) {
-      res.status(401).json({ NoAuthentificate: true });
+      res.json({ error: 'Non authentifié' });
+      return;
+    }
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const userId = Number(decoded.infos.id);
+    if (!userId) {
+      res.json({ error: 'Token invalide' });
       return;
     }
 
-    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
-    const currentUserId = Number(decoded.infos.id);
-
     const { id, voteId } = req.params;
-    if (!id || isNaN(Number(id)) || !voteId || isNaN(Number(voteId))) {
-      res.json({ invalidId: true });
+    if (!id || isNaN(Number(id))) {
+      res.json({ invalidRoomId: true });
       return;
     }
 
@@ -361,11 +365,6 @@ export const getVoteById = async (req: Request, res: Response) => {
         roomId: Number(id),
       },
       include: {
-        room: {
-          select: {
-            userId: true,
-          },
-        },
         cards: {
           include: {
             user: {
@@ -381,19 +380,22 @@ export const getVoteById = async (req: Request, res: Response) => {
       },
     });
 
-    if (!vote) {
-      res.status(404).json({ voteNotFound: true });
-      return;
-    }
+    const updatedVote = {
+      ...vote,
+      cards: vote?.cards
+        ? vote.cards.map((item) => {
+            if (item.userId !== userId && vote.status === 'hidden') {
+              const { value, ...cardWithoutValue } = item;
+              return cardWithoutValue;
+            }
+            return item;
+          })
+        : [],
+    };
 
-    if (vote.room.userId !== currentUserId) {
-      res.json({ unAuthorized: true });
-      return;
-    }
-
-    res.json({ vote });
+    res.json({ vote: updatedVote });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error });
   }
 };
 
@@ -582,9 +584,27 @@ export const showCards = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const updatedVote = await prisma.vote.update({
+    await prisma.vote.update({
       where: { id: vote.id },
       data: { status: 'show' },
+    });
+
+    const updatedVote = await prisma.vote.findUnique({
+      where: { id: vote.id },
+      include: {
+        cards: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                role: true,
+                profile: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     io.to(`room-${vote.roomId}`).emit('showCards', { vote: updatedVote });

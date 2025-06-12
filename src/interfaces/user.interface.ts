@@ -5,7 +5,7 @@ export interface UserInterface {
   name: string;
   email: string;
   acceptConditions: boolean;
-  role: string;
+  role: 'user' | 'admin';
   qualiCarriere: string;
 
   files: FileInterface[];
