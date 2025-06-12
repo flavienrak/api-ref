@@ -85,4 +85,4 @@ const logger = winston.createLogger({
   transports: [new winston.transports.Console()],
 });
 
-export { app, logger, io, server };
+export { app, logger, io, server, allUsers };

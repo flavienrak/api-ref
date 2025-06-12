@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { getUserWithRooms } from '@/controllers/user.controller';
-import { io } from '@/socket';
+import { allUsers, io } from '@/socket';
 
 const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
@@ -72,7 +72,10 @@ export const createRoom = async (
         },
       },
     });
-
+    const user = allUsers.get(userId.toString());
+    if (user?.socket) {
+      user.socket.join(`room-${newRoom.id}`);
+    }
     res.json({ userRoom: createdUserRoom });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création de la room' });
