@@ -380,16 +380,15 @@ export const deleteVote = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    const voteId = Number(id);
+    const { voteId } = req.params;
 
-    if (isNaN(voteId)) {
+    if (isNaN(Number(voteId))) {
       res.json({ invalidId: true });
       return;
     }
 
     const vote = await prisma.vote.findUnique({
-      where: { id: voteId },
+      where: { id: Number(voteId) },
     });
 
     if (!vote) {
@@ -407,7 +406,7 @@ export const deleteVote = async (
     }
 
     await prisma.vote.delete({
-      where: { id: voteId },
+      where: { id: Number(voteId) },
     });
 
     io.to(`room-${room.id}`).emit('deleteVote', {
