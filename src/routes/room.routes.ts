@@ -9,6 +9,7 @@ import {
   getVoteById,
   createRoom,
   deleteVote,
+  showCards,
 } from '@/controllers/room.controller';
 
 const router = Router();
@@ -27,4 +28,5 @@ router.delete('/:id/vote/:voteId', deleteVote);
 
 //Card
 router.post('/:id/vote/:voteId/card', chooseCard);
+router.get('/:id/vote/:voteId/show', showCards);
 export default router;

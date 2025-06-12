@@ -396,6 +396,7 @@ export const editVote = async (req: Request, res: Response): Promise<void> => {
       res.json({ voteNotFound: true });
       return;
     }
+
     const updatedVote = await prisma.vote.update({
       where: { id: Number(voteId) },
       data: {
@@ -406,11 +407,14 @@ export const editVote = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
+    io.to(`room-${vote.roomId}`).emit('updateVote', { vote: updatedVote });
+
     res.json({ vote: updatedVote });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la modification du vote' });
   }
 };
+
 export const deleteVote = async (
   req: Request,
   res: Response,
@@ -451,7 +455,7 @@ export const chooseCard = async (
   try {
     const token = req.cookies?.[tokenName];
     if (!token) {
-      res.json({ error: 'Non authentifié' });
+      res.json({ NoAuthentificate: true });
       return;
     }
 
@@ -462,7 +466,22 @@ export const chooseCard = async (
     const { value }: { value: number | string } = req.body;
 
     if (!voteId || isNaN(Number(voteId)) || !value) {
-      res.json({ error: 'Paramètres manquants' });
+      res.json({ invalidVoteId: true });
+      return;
+    }
+
+    const vote = await prisma.vote.findUnique({
+      where: { id: Number(voteId) },
+      select: { roomId: true, status: true },
+    });
+
+    if (!vote) {
+      res.json({ votNotFound: true });
+      return;
+    }
+
+    if (vote.status === 'show') {
+      res.json({ AlreadyShow: true });
       return;
     }
 
@@ -492,29 +511,69 @@ export const chooseCard = async (
       });
     }
 
-    const vote = await prisma.vote.findUnique({
-      where: { id: Number(voteId) },
-      select: { roomId: true },
+    const cardWithoutValue: {
+      id: number;
+      voteId: number;
+      value?: string;
+      userId: number;
+      createdAt: Date;
+      updatedAt: Date;
+    } = { ...card };
+    delete cardWithoutValue.value;
+
+    io.to(`room-${vote.roomId}`).emit('chooseCard', {
+      card: cardWithoutValue,
     });
-
-    if (vote) {
-      const cardWithoutValue: {
-        id: number;
-        voteId: number;
-        value?: string;
-        userId: number;
-        createdAt: Date;
-        updatedAt: Date;
-      } = { ...card };
-      delete cardWithoutValue.value;
-
-      io.to(`room-${vote.roomId}`).emit('chooseCard', {
-        card: cardWithoutValue,
-      });
-    }
 
     res.json({ card });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors du choix de la carte' });
+  }
+};
+
+export const showCards = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, voteId } = req.params;
+
+    if (!voteId || isNaN(Number(voteId))) {
+      res.json({ voteIdInvalid: true });
+      return;
+    }
+
+    const vote = await prisma.vote.findUnique({
+      where: { id: Number(voteId) },
+      include: {
+        cards: true,
+        room: {
+          include: {
+            userRooms: true,
+          },
+        },
+      },
+    });
+
+    if (!vote) {
+      res.json({ voteNotFound: true });
+      return;
+    }
+
+    const totalUsers = vote.room.userRooms.length;
+    const totalCards = vote.cards.length;
+
+    if (totalCards < totalUsers) {
+      res.json({ unAuthorized: true });
+      return;
+    }
+
+    const updatedVote = await prisma.vote.update({
+      where: { id: vote.id },
+      data: { status: 'show' },
+    });
+
+    io.to(`room-${vote.roomId}`).emit('showCards', { vote: updatedVote });
+
+    res.status(200).json({ vote: updatedVote });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 };
