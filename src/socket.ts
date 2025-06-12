@@ -57,8 +57,8 @@ io.on('connection', async (socket: Socket) => {
 
   await socket.join(`user-${userId}`);
 
-  socket.on('JoinRoom', (roomId: number[]) => {
-    roomId.forEach(async (items) => await socket.join(`room-${items}`));
+  socket.on('joinRooms', (roomIds: number[]) => {
+    roomIds.forEach(async (item) => await socket.join(`room-${item}`));
   });
   io.emit('roomJoined');
   io.emit('getOnlineUsers', Array.from(allUsers.keys()));
