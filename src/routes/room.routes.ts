@@ -8,7 +8,6 @@ import {
   getUserRooms,
   getVoteById,
   createRoom,
-  joinRoom,
   deleteVote,
 } from '@/controllers/room.controller';
 
@@ -16,7 +15,6 @@ const router = Router();
 
 //room
 router.post('/', createRoom);
-router.post('/:id/join', joinRoom);
 router.get('/', getUserRooms);
 router.get('/:id', getRoomById);
 router.delete('/:id', deleteRoom);
