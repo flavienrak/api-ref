@@ -303,7 +303,7 @@ export const createVote = async (
         roomId: Number(id),
       },
     });
-    const createVote = await prisma.vote.findUnique({
+    const createdVote = await prisma.vote.findUnique({
       where: { id: vote.id },
       include: {
         cards: {
@@ -320,8 +320,10 @@ export const createVote = async (
         },
       },
     });
-    io.to(`room-${vote.roomId}`).emit('createVote', { vote: createVote });
-    res.json({ vote: createVote });
+
+    io.to(`room-${vote.roomId}`).emit('createVote', { vote: createdVote });
+
+    res.json({ vote: createdVote });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création du vote' });
   }
@@ -557,7 +559,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    io.to(`room-${room.id}`).emit('joinedUserRoom', { joinedUserRoom });
+    io.to(`room-${room.id}`).emit('joinRoom', { userRoom: joinedUserRoom });
 
     res.status(200).json({ userRoom: joinedUserRoom });
   } catch (error) {
