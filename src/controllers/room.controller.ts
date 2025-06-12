@@ -382,7 +382,7 @@ export const getVoteById = async (req: Request, res: Response) => {
     });
 
     if (!vote) {
-      res.status(404).json({ voteNotFound: true });
+      res.json({ voteNotFound: true });
       return;
     }
 
@@ -391,7 +391,7 @@ export const getVoteById = async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({ vote });
+    res.status(200).json({ vote });
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
