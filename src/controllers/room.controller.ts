@@ -396,20 +396,11 @@ export const deleteVote = async (
       return;
     }
 
-    const room = await prisma.room.findUnique({
-      where: { id: vote.roomId },
-    });
-
-    if (!room) {
-      res.json({ roomNotFound: true });
-      return;
-    }
-
     await prisma.vote.delete({
       where: { id: Number(voteId) },
     });
 
-    io.to(`room-${room.id}`).emit('deleteVote', {
+    io.to(`room-${vote.roomId}`).emit('deleteVote', {
       vote,
     });
 
