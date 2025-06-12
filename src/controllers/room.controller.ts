@@ -73,9 +73,10 @@ export const createRoom = async (
       },
     });
     const user = allUsers.get(userId.toString());
-    if (user?.socket) {
+    if (user && user.socket) {
       user.socket.join(`room-${newRoom.id}`);
     }
+
     res.json({ userRoom: createdUserRoom });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création de la room' });
