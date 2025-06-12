@@ -472,7 +472,6 @@ export const chooseCard = async (
 
     const vote = await prisma.vote.findUnique({
       where: { id: Number(voteId) },
-      select: { roomId: true, status: true },
     });
 
     if (!vote) {
@@ -481,7 +480,7 @@ export const chooseCard = async (
     }
 
     if (vote.status === 'show') {
-      res.json({ AlreadyShow: true });
+      res.json({ alreadyShow: true });
       return;
     }
 
