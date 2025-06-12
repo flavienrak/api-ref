@@ -574,6 +574,6 @@ export const showCards = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ vote: updatedVote });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error: 'Erreur lors du choix de la carte' });
   }
 };
