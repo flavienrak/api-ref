@@ -264,7 +264,7 @@ export const deleteRoom = async (
 
     await prisma.room.delete({ where: { id: room.id } });
 
-    io.to(`room-${room.id}`).emit('deteteRoom', { room });
+    io.to(`room-${room.id}`).emit('deleteRoom', { room });
 
     res.json({ room });
   } catch (error) {
