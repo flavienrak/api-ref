@@ -388,17 +388,17 @@ export const deleteVote = async (
       return;
     }
 
-    const voteToDelete = await prisma.vote.findUnique({
+    const vote = await prisma.vote.findUnique({
       where: { id: voteId },
     });
 
-    if (!voteToDelete) {
+    if (!vote) {
       res.json({ voteNotFound: true });
       return;
     }
 
     const room = await prisma.room.findUnique({
-      where: { id: voteToDelete.roomId },
+      where: { id: vote.roomId },
     });
 
     if (!room) {
@@ -410,15 +410,11 @@ export const deleteVote = async (
       where: { id: voteId },
     });
 
-    io.to(`room-${room.id}`).emit('joinUserRoom', {
-      vote: voteToDelete,
-      room: room,
+    io.to(`room-${room.id}`).emit('deleteVote', {
+      vote,
     });
 
-    res.status(200).json({
-      vote: voteToDelete,
-      room: room,
-    });
+    res.status(200).json({ vote });
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -557,7 +553,7 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    io.to(`room-${room.id}`).emit('joinUserRoom', joinedUserRoom);
+    io.to(`room-${room.id}`).emit('joinedUserRoom', joinedUserRoom);
 
     res.status(200).json({ userRoom: joinedUserRoom });
   } catch (error) {
