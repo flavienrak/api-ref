@@ -351,15 +351,15 @@ export const getVoteById = async (req: Request, res: Response) => {
         id: Number(voteId),
         roomId: Number(id),
       },
-      select: {
-        id: true,
-        roomId: true,
-
+      include: {
         cards: {
           select: {
             id: true,
             userId: true,
             voteId: true,
+            createdAt: true,
+            updatedAt: true,
+            vote: true,
             user: {
               select: {
                 id: true,
