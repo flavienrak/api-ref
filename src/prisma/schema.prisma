@@ -54,6 +54,7 @@ model UserRoom {
 model Vote {
   id        Int      @id @default(autoincrement())
   content   String
+  status    String   @default("hidden")
   min       Int      @default(1)
   max       Int      @default(5)
   mid       Int      @default(1)

@@ -347,10 +347,19 @@ export const getVoteById = async (req: Request, res: Response) => {
     }
 
     const vote = await prisma.vote.findUnique({
-      where: { id: Number(voteId), roomId: Number(id) },
-      include: {
+      where: {
+        id: Number(voteId),
+        roomId: Number(id),
+      },
+      select: {
+        id: true,
+        roomId: true,
+
         cards: {
-          include: {
+          select: {
+            id: true,
+            userId: true,
+            voteId: true,
             user: {
               select: {
                 id: true,
