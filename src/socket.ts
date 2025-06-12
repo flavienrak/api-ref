@@ -57,12 +57,12 @@ io.on('connection', async (socket: Socket) => {
 
   await socket.join(`user-${userId}`);
 
-  socket.on('joinRooms', (roomIds: number[]) => {
-    roomIds.forEach(async (item) => await socket.join(`room-${item}`));
-  });
   io.emit('roomJoined');
   io.emit('getOnlineUsers', Array.from(allUsers.keys()));
 
+  socket.on('joinRooms', (roomIds: number[]) => {
+    roomIds.forEach(async (item) => await socket.join(`room-${item}`));
+  });
   socket.on('disconnect', async () => {
     const userData = allUsers.get(userId);
     if (!userData) return;
