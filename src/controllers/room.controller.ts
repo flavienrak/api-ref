@@ -489,7 +489,16 @@ export const chooseCard = async (
     });
 
     if (vote) {
-      const { value, ...cardWithoutValue } = card;
+      const cardWithoutValue: {
+        id: number;
+        voteId: number;
+        value?: string;
+        userId: number;
+        createdAt: Date;
+        updatedAt: Date;
+      } = { ...card };
+      delete cardWithoutValue.value;
+
       io.to(`room-${vote.roomId}`).emit('chooseCard', {
         card: cardWithoutValue,
       });
