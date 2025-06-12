@@ -72,6 +72,7 @@ export const createRoom = async (
         },
       },
     });
+
     const user = allUsers.get(userId.toString());
     if (user && user.socket) {
       user.socket.join(`room-${newRoom.id}`);
@@ -444,6 +445,7 @@ export const chooseCard = async (
       res.json({ error: 'Non authentifié' });
       return;
     }
+
     const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
     const userId = Number(decoded.infos.id);
 
@@ -464,29 +466,35 @@ export const chooseCard = async (
       },
     });
 
+    let card;
+
     if (existingCard) {
-      const updatedCard = await prisma.card.update({
+      card = await prisma.card.update({
         where: { id: existingCard.id },
         data: { value: value.toString() },
       });
-      res.json({ card: updatedCard });
-      return;
+    } else {
+      card = await prisma.card.create({
+        data: {
+          value: value.toString(),
+          userId,
+          voteId: Number(voteId),
+        },
+      });
     }
-    const card = await prisma.card.create({
-      data: {
-        value: value.toString(),
-        userId,
-        voteId: Number(voteId),
-      },
-    });
+
     const vote = await prisma.vote.findUnique({
       where: { id: Number(voteId) },
       select: { roomId: true },
     });
 
     if (vote) {
-      io.to(`room-${vote.roomId}`).emit('chooseCard', { cardChoosed: true });
+      const { value, ...cardWithoutValue } = card;
+      io.to(`room-${vote.roomId}`).emit('chooseCard', {
+        card: cardWithoutValue,
+      });
     }
+
     res.json({ card });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors du choix de la carte' });
