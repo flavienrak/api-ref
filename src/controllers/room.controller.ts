@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { getUserWithRooms } from '@/controllers/user.controller';
+import { io } from '@/socket';
 
 const secretKey = process.env.JWT_SECRET_KEY as string;
 const tokenName = process.env.AUTH_TOKEN_NAME as string;
@@ -259,7 +260,9 @@ export const deleteRoom = async (
 
     await prisma.room.delete({ where: { id: room.id } });
 
-    res.json({ deleted: true });
+    io.to(`room-${room.id}`).emit('roomDeleted', room);
+
+    res.json({ room });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la suppression de la room' });
   }
@@ -301,6 +304,7 @@ export const createVote = async (
       },
     });
 
+    io.to(`room-${vote.roomId}`).emit('createVote', vote);
     res.json({ vote });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la création du vote' });
@@ -406,6 +410,11 @@ export const deleteVote = async (
       where: { id: voteId },
     });
 
+    io.to(`room-${room.id}`).emit('joinUserRoom', {
+      vote: voteToDelete,
+      room: room,
+    });
+
     res.status(200).json({
       vote: voteToDelete,
       room: room,
@@ -460,7 +469,14 @@ export const chooseCard = async (
         voteId: Number(voteId),
       },
     });
+    const vote = await prisma.vote.findUnique({
+      where: { id: Number(voteId) },
+      select: { roomId: true },
+    });
 
+    if (vote) {
+      io.to(`room-${vote.roomId}`).emit('chooseCard', { cardChoosed: true });
+    }
     res.json({ card });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors du choix de la carte' });
@@ -540,6 +556,8 @@ export const joinRoom = async (req: Request, res: Response): Promise<void> => {
         },
       },
     });
+
+    io.to(`room-${room.id}`).emit('joinUserRoom', joinedUserRoom);
 
     res.status(200).json({ userRoom: joinedUserRoom });
   } catch (error) {
