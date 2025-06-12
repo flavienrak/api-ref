@@ -340,9 +340,18 @@ export const createVote = async (
 
 export const getVoteById = async (req: Request, res: Response) => {
   try {
+    const token = req.cookies?.[tokenName];
+    if (!token) {
+      res.status(401).json({ NoAuthentificate: true });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secretKey) as { infos: { id: string } };
+    const currentUserId = Number(decoded.infos.id);
+
     const { id, voteId } = req.params;
-    if (!id || isNaN(Number(id))) {
-      res.json({ invalidRoomId: true });
+    if (!id || isNaN(Number(id)) || !voteId || isNaN(Number(voteId))) {
+      res.json({ invalidId: true });
       return;
     }
 
@@ -352,14 +361,13 @@ export const getVoteById = async (req: Request, res: Response) => {
         roomId: Number(id),
       },
       include: {
-        cards: {
+        room: {
           select: {
-            id: true,
             userId: true,
-            voteId: true,
-            createdAt: true,
-            updatedAt: true,
-            vote: true,
+          },
+        },
+        cards: {
+          include: {
             user: {
               select: {
                 id: true,
@@ -373,9 +381,19 @@ export const getVoteById = async (req: Request, res: Response) => {
       },
     });
 
+    if (!vote) {
+      res.status(404).json({ voteNotFound: true });
+      return;
+    }
+
+    if (vote.room.userId !== currentUserId) {
+      res.json({ unAuthorized: true });
+      return;
+    }
+
     res.json({ vote });
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 };
 
